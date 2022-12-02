@@ -9,6 +9,8 @@ class FFmpegWrapper {
   void cutFile(const QString &filePath, const QString &startTime,
                const QString &endTime, const QString &outputFilePath,
                const bool &isQuickCut = false);
+  bool areTwoFilesMergeable(const QString &firstVideoFilePath,
+                             const QString &secondVideoFilePath);
   QString getMergeSensitiveFileProperties(const QString &filePath);
 
  private:

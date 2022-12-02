@@ -42,6 +42,12 @@ void FFmpegWrapper::cutFile(const QString &filePath, const QString &startTime,
   process.close();
 }
 
+bool FFmpegWrapper::areTwoFilesMergeable(const QString &firstFilePath,
+                                          const QString &secondFilePath) {
+  return this->getMergeSensitiveFileProperties(firstFilePath) ==
+         this->getMergeSensitiveFileProperties(secondFilePath);
+}
+
 QString FFmpegWrapper::getMergeSensitiveFileProperties(
     const QString &filePath) {
   QProcess process;
