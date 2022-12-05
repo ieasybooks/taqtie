@@ -11,6 +11,7 @@ class SectionInfo {
 
  public:
   SectionInfo(QString name, QTime startTime, QTime endTime);
+
   const QString &getTitle() const;
   const QTime &getStartTime() const;
   const QTime &getEndTime() const;

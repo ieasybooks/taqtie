@@ -8,6 +8,7 @@
 class SectionsReader {
  public:
   SectionsReader();
+
   const QVector<SectionInfo> read(const QString &filePath);
 
  private:

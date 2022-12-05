@@ -6,6 +6,7 @@
 class TimeHelpers {
  public:
   TimeHelpers();
+
   QString secondsToTimeFormat(const qint64 &seconds);
 };
 

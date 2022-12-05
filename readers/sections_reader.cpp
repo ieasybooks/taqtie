@@ -53,9 +53,8 @@ const QVector<SectionInfo> SectionsReader::fromExcel(const QString &filePath) {
         break;
       }
 
-      sections.push_back(SectionInfo(sectionTitle.value<QString>(),
-                                     sectionStartTime.value<QTime>(),
-                                     sectionEndTime.value<QTime>()));
+      sections.push_back(
+          SectionInfo(sectionTitle.value<QString>(), sectionStartTime.value<QTime>(), sectionEndTime.value<QTime>()));
     }
   }
 
