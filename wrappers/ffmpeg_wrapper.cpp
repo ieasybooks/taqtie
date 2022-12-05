@@ -6,6 +6,11 @@
 #include <QProcess>
 #include <QUuid>
 
+/*
+ * The source of this properties list came from:
+ *  - https://stackoverflow.com/questions/47050033/ffmpeg-join-two-movies-with-different-timebase
+ *  - https://stackoverflow.com/questions/52830468/ffmpeg-concat-videos-error-do-not-match-the-corresponding-output-link
+ */
 const QString FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES =
     "codec_name,width,height,sample_aspect_ratio,display_aspect_ratio,pix_fmt,r_frame_rate,avg_frame_rate,time_base,"
     "sample_rate,channels,channel_layout";
