@@ -110,7 +110,9 @@ void MainWindow::processSections() {
   ui->processProgress->setValue(0);
 
   for (qint16 i = 0; i < ui->sections->rowCount(); ++i) {
-    this->processSection(i);
+    if (!this->processSection(i)) {
+      break;
+    }
     ui->processProgress->setValue(1.0 * (i + 1) / ui->sections->rowCount() * 100);
   }
 
@@ -129,7 +131,7 @@ void MainWindow::addSectionToTable(const SectionInfo &sectionInfo) {
                             sectionInfo.getStartTime().secsTo(sectionInfo.getEndTime()))));
 }
 
-void MainWindow::processSection(const qint16 &sectionId) {
+bool MainWindow::processSection(const qint16 &sectionId) {
   QString cuttingFilePath = ui->cuttingFilePath->text();
   QFileInfo cuttingFilePathInfo = QFileInfo(cuttingFilePath);
 
@@ -144,6 +146,15 @@ void MainWindow::processSection(const qint16 &sectionId) {
       cuttingFilePathInfo.absoluteDir().filePath(sectionTitle + "." + cuttingFilePathInfo.suffix());
   QString tmpSectionFilePath = cuttingFilePathInfo.absoluteDir().filePath(
       sectionTitle + MainWindow::TEMPORARY_FILE_SUFFIX + "." + cuttingFilePathInfo.suffix());
+
+  if (QFile::exists(sectionFilePath)) {
+    QMessageBox messageBox;
+    messageBox.critical(0, "خطأ",
+                        "يوجد ملف باسم \"" + sectionTitle +
+                            "\" مسبقًا، يُرجى اختيار اسم آخر.\n"
+                            "سيتم إيقاف العملية عند هذا الملف، يُرجى متابعة العملية بعد حل المشكلة.");
+    return false;
+  }
 
   if (introFilePath.isEmpty() && outroFilePath.isEmpty()) {
     ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, sectionFilePath,
@@ -171,6 +182,8 @@ void MainWindow::processSection(const qint16 &sectionId) {
 
     fileHelpers->deleteFile(tmpSectionFilePath);
   }
+
+  return true;
 }
 
 void MainWindow::resetProcessTime() { ui->processTimer->setText(MainWindow::PROCESS_TIMER_DEFAULT_VALUE); }

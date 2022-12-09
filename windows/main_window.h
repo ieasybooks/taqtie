@@ -55,7 +55,7 @@ class MainWindow : public QMainWindow {
   };
 
   void addSectionToTable(const SectionInfo &sectionInfo);
-  void processSection(const qint16 &sectionId);
+  bool processSection(const qint16 &sectionId);
   void resetProcessTime();
   void updateProcessTimer();
   void toggleActionableElements();
