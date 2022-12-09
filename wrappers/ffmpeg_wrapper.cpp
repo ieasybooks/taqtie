@@ -33,8 +33,67 @@ FFmpegWrapper::~FFmpegWrapper() {
   delete processHelpers;
 }
 
+bool FFmpegWrapper::areFilesMergeable(const QVector<QString>& filesPaths, const std::function<void()>& callback) {
+  assert(filesPaths.size() >= 2);
+  return this->areFilesPropertiesEqual(filesPaths, FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES, callback);
+}
+
+bool FFmpegWrapper::areFilesPropertiesEqual(const QVector<QString>& filesPaths, const QString& properties,
+                                            const std::function<void()>& callback) {
+  return this->areFilesPropertiesEqual(filesPaths, properties.split(','), callback);
+}
+
+bool FFmpegWrapper::areFilesPropertiesEqual(const QVector<QString>& filesPaths, const QVector<QString>& properties,
+                                            const std::function<void()>& callback) {
+  QVector<QMap<QString, QString>> firstFileProperties =
+      this->getFileStreamsProperties(filesPaths[0], properties, callback);
+
+  for (int i = 1; i < filesPaths.size(); ++i) {
+    if (firstFileProperties != this->getFileStreamsProperties(filesPaths[i], properties, callback)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+QVector<QMap<QString, QString>> FFmpegWrapper::getFileStreamsProperties(const QString& filePath,
+                                                                        const QString& requiredProperties,
+                                                                        const std::function<void()>& callback) {
+  return this->getFileStreamsProperties(filePath, requiredProperties.split(','), callback);
+}
+
+QVector<QMap<QString, QString>> FFmpegWrapper::getFileStreamsProperties(const QString& filePath,
+                                                                        const QVector<QString>& requiredProperties,
+                                                                        const std::function<void()>& callback) {
+  QString processOutput =
+      this->processHelpers->doBlockingProcess(this->ffprobeExecutablePath,
+                                              QVector<QString>{"-v", "error", "-hide_banner", "-show_entries",
+                                                               "stream=" + requiredProperties.join(','), filePath},
+                                              callback);
+
+  QVector<QString> streamsRawProperties = processOutput.split('\n');
+
+  QVector<QMap<QString, QString>> streamsProperties;
+
+  for (int i = 1; i < streamsRawProperties.size(); i += 2) {
+    QMap<QString, QString> streamProperties;
+
+    while (streamsRawProperties[i] != "[/STREAM]") {
+      QVector<QString> property = streamsRawProperties[i].split('=');
+      streamProperties[property[0]] = property[1];
+      ++i;
+    }
+
+    streamsProperties.append(streamProperties);
+  }
+
+  return streamsProperties;
+}
+
 void FFmpegWrapper::cutFile(const QString& filePath, const QString& startTime, const QString& endTime,
-                            const QString& outputFilePath, const bool& isQuickCut) {
+                            const QString& outputFilePath, const bool& isQuickCut,
+                            const std::function<void()>& callback) {
   QStringList arguments{"-ss", startTime, "-to", endTime, "-i", filePath};
 
   if (isQuickCut) {
@@ -44,20 +103,21 @@ void FFmpegWrapper::cutFile(const QString& filePath, const QString& startTime, c
 
   arguments << outputFilePath;
 
-  this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments);
+  this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments, callback);
 }
 
 void FFmpegWrapper::mergeFiles(const QVector<QString>& filesPaths, const int& baseVideoIndex,
-                               const QString& outputFilePath, const bool& isQuickMerge) {
+                               const QString& outputFilePath, const bool& isQuickMerge,
+                               const std::function<void()>& callback) {
   if (this->areFilesMergeable(filesPaths)) {
-    this->mergeFilesWithDemuxer(filesPaths, outputFilePath, isQuickMerge);
+    this->mergeFilesWithDemuxer(filesPaths, outputFilePath, isQuickMerge, callback);
   } else {
-    this->mergeFilesWithConcatFilter(filesPaths, baseVideoIndex, outputFilePath);
+    this->mergeFilesWithConcatFilter(filesPaths, baseVideoIndex, outputFilePath, callback);
   }
 }
 
 void FFmpegWrapper::mergeFilesWithConcatFilter(const QVector<QString>& filesPaths, const int& baseVideoIndex,
-                                               const QString& outputFilePath) {
+                                               const QString& outputFilePath, const std::function<void()>& callback) {
   QVector<QMap<QString, QString>> fileStreamsProperties =
       this->getFileStreamsProperties(filesPaths[baseVideoIndex], FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES);
 
@@ -80,18 +140,21 @@ void FFmpegWrapper::mergeFilesWithConcatFilter(const QVector<QString>& filesPath
 
   filterComplex += "concat=n=" + QString::number(filesPaths.size()) + ":v=1:a=1[vout][aout]";
 
-  arguments << "-fps_mode"
-            << "vfr"
-            << "-filter_complex" << filterComplex << "-map"
+  if (!this->areFilesPropertiesEqual(filesPaths, "sample_aspect_ratio,display_aspect_ratio")) {
+    arguments << "-fps_mode"
+              << "vfr";
+  }
+
+  arguments << "-filter_complex" << filterComplex << "-map"
             << "[vout]"
             << "-map"
             << "[aout]" << outputFilePath;
 
-  this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments);
+  this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments, callback);
 }
 
 void FFmpegWrapper::mergeFilesWithDemuxer(const QVector<QString>& filesPaths, const QString& outputFilePath,
-                                          const bool& isQuickMerge) {
+                                          const bool& isQuickMerge, const std::function<void()>& callback) {
   QString demuxerListFileName = QUuid::createUuid().toString(QUuid::StringFormat::WithoutBraces);
 
   QVector<QString> lines;
@@ -110,53 +173,7 @@ void FFmpegWrapper::mergeFilesWithDemuxer(const QVector<QString>& filesPaths, co
 
   arguments << outputFilePath;
 
-  this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments);
+  this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments, callback);
 
   fileHelpers->deleteFile(demuxerListFileName);
-}
-
-bool FFmpegWrapper::areFilesMergeable(const QVector<QString>& filesPaths) {
-  assert(filesPaths.size() >= 2);
-
-  QVector<QMap<QString, QString>> firstFileMergeSensitiveProperties =
-      this->getFileStreamsProperties(filesPaths[0], FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES);
-
-  for (int i = 1; i < filesPaths.size(); ++i) {
-    if (firstFileMergeSensitiveProperties !=
-        this->getFileStreamsProperties(filesPaths[i], FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-QVector<QMap<QString, QString>> FFmpegWrapper::getFileStreamsProperties(const QString& filePath,
-                                                                        const QString& requiredProperties) {
-  return this->getFileStreamsProperties(filePath, requiredProperties.split(','));
-}
-
-QVector<QMap<QString, QString>> FFmpegWrapper::getFileStreamsProperties(const QString& filePath,
-                                                                        const QVector<QString>& requiredProperties) {
-  QString processOutput = this->processHelpers->doBlockingProcess(
-      this->ffprobeExecutablePath, QVector<QString>{"-v", "error", "-hide_banner", "-show_entries",
-                                                    "stream=" + requiredProperties.join(','), filePath});
-
-  QVector<QString> streamsRawProperties = processOutput.split('\n');
-
-  QVector<QMap<QString, QString>> streamsProperties;
-
-  for (int i = 1; i < streamsRawProperties.size(); i += 2) {
-    QMap<QString, QString> streamProperties;
-
-    while (streamsRawProperties[i] != "[/STREAM]") {
-      QVector<QString> property = streamsRawProperties[i].split('=');
-      streamProperties[property[0]] = property[1];
-      ++i;
-    }
-
-    streamsProperties.append(streamProperties);
-  }
-
-  return streamsProperties;
 }

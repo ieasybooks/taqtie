@@ -19,43 +19,44 @@ const QVector<SectionInfo> SectionsReader::read(const QString &filePath) {
   }
 }
 
+// This function was refactored by ChatGPT (with some modifications).
 const QVector<SectionInfo> SectionsReader::fromExcel(const QString &filePath) {
   QVector<SectionInfo> sections;
 
   Document sectionsFileReader(filePath);
-  if (sectionsFileReader.load()) {
-    for (qint16 row = 1; true; ++row) {
-      Cell *cell = nullptr;
-      QVariant sectionTitle;
-      QVariant sectionStartTime;
-      QVariant sectionEndTime;
 
-      cell = sectionsFileReader.cellAt(row, 1);
-      if (cell != NULL && cell->readValue().userType() == QMetaType::QString) {
-        sectionTitle = cell->readValue();
-      } else if (cell == NULL) {
-        sectionTitle = QVariant("");
-      } else {
-        break;
-      }
+  if (!sectionsFileReader.load()) {
+    return sections;
+  }
 
-      cell = sectionsFileReader.cellAt(row, 2);
-      if (cell != NULL && cell->readValue().userType() == QMetaType::QTime) {
-        sectionStartTime = cell->readValue();
-      } else {
-        break;
-      }
+  for (qint16 row = 1; true; ++row) {
+    Cell *cell = nullptr;
+    QString sectionTitle;
+    QTime sectionStartTime;
+    QTime sectionEndTime;
 
-      cell = sectionsFileReader.cellAt(row, 3);
-      if (cell != NULL && cell->readValue().userType() == QMetaType::QTime) {
-        sectionEndTime = cell->readValue();
-      } else {
-        break;
-      }
-
-      sections.push_back(
-          SectionInfo(sectionTitle.value<QString>(), sectionStartTime.value<QTime>(), sectionEndTime.value<QTime>()));
+    cell = sectionsFileReader.cellAt(row, 1);
+    if (cell != nullptr && cell->readValue().userType() == QMetaType::QString) {
+      sectionTitle = cell->readValue().toString();
+    } else if (cell == nullptr) {
+      sectionTitle = "";
+    } else {
+      break;
     }
+
+    cell = sectionsFileReader.cellAt(row, 2);
+    if (cell == nullptr || cell->readValue().userType() != QMetaType::QTime) {
+      break;
+    }
+    sectionStartTime = cell->readValue().toTime();
+
+    cell = sectionsFileReader.cellAt(row, 3);
+    if (cell == nullptr || cell->readValue().userType() != QMetaType::QTime) {
+      break;
+    }
+    sectionEndTime = cell->readValue().toTime();
+
+    sections.push_back(SectionInfo(sectionTitle, sectionStartTime, sectionEndTime));
   }
 
   return sections;

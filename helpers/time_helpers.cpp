@@ -1,14 +1,21 @@
 #include "helpers/time_helpers.h"
 
 #include <QTime>
+#include <sstream>
 
 TimeHelpers::TimeHelpers() {}
 
-QString TimeHelpers::secondsToTimeFormat(const qint64 &seconds) {
-  QTime secondsTime = QTime(0, 0).addSecs(seconds);
+// This function was written by ChatGPT (with some renamings).
+QString TimeHelpers::secondsToTimeFormat(const qint32 &seconds) {
+  QTime t = QTime::fromMSecsSinceStartOfDay(seconds * 1000);
+  return t.toString("hh:mm:ss");
+}
 
-  return QString("%1:%2:%3")
-      .arg(secondsTime.hour(), 2, 10, QChar('0'))
-      .arg(secondsTime.minute(), 2, 10, QChar('0'))
-      .arg(secondsTime.second(), 2, 10, QChar('0'));
+// This function was written by ChatGPT (with some renamings).
+QString TimeHelpers::addMillisecondsToTime(const QString &time, const qint32 &milliseconds) {
+  QTime t = QTime::fromString(time, "hh:mm:ss.zzz");
+
+  t = t.addMSecs(milliseconds);
+
+  return t.toString("hh:mm:ss.zzz");
 }

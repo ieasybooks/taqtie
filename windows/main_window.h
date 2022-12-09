@@ -34,6 +34,11 @@ class MainWindow : public QMainWindow {
   void processSections();
 
  private:
+  static const QString TEMPORARY_FILE_SUFFIX;
+  static const QString PROCESS_TIMER_DEFAULT_VALUE;
+  static const qint32 PROCESS_UPDATE_EVERY_MILLISECONDS;
+  static const QVector<QString> ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS;
+
   Ui::MainWindow *ui;
 
   qint32 currentSection;
@@ -51,5 +56,8 @@ class MainWindow : public QMainWindow {
 
   void addSectionToTable(const SectionInfo &sectionInfo);
   void processSection(const qint16 &sectionId);
+  void resetProcessTime();
+  void updateProcessTimer();
+  void toggleActionableElements();
 };
 #endif  // MAINWINDOW_H

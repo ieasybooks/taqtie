@@ -6,6 +6,11 @@
 
 #include "ui_main_window.h"
 
+const QString MainWindow::TEMPORARY_FILE_SUFFIX = "-مؤقت";
+const QString MainWindow::PROCESS_TIMER_DEFAULT_VALUE = "00:00:00.000";
+const qint32 MainWindow::PROCESS_UPDATE_EVERY_MILLISECONDS = 100;
+const QVector<QString> MainWindow::ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS = {"Microsoft Excel (*.xlsx)"};
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
@@ -67,7 +72,7 @@ void MainWindow::addSection() {
 }
 
 void MainWindow::importSections() {
-  QString filePath = fileHelpers->selectFile(this, "Microsoft Excel (*.xlsx)");
+  QString filePath = fileHelpers->selectFile(this, MainWindow::ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS.join(";;"));
 
   if (!filePath.trimmed().isEmpty()) {
     QVector<SectionInfo> sections = this->sectionsReader->read(filePath.trimmed());
@@ -100,15 +105,16 @@ void MainWindow::selectIntroFile() { ui->introFilePath->setText(fileHelpers->sel
 void MainWindow::selectOutroFile() { ui->outroFilePath->setText(fileHelpers->selectFile(this)); }
 
 void MainWindow::processSections() {
+  this->toggleActionableElements();
+  this->resetProcessTime();
   ui->processProgress->setValue(0);
-  ui->centralwidget->setEnabled(false);
 
   for (qint16 i = 0; i < ui->sections->rowCount(); ++i) {
     this->processSection(i);
     ui->processProgress->setValue(1.0 * (i + 1) / ui->sections->rowCount() * 100);
   }
 
-  ui->centralwidget->setEnabled(true);
+  this->toggleActionableElements();
 }
 
 void MainWindow::addSectionToTable(const SectionInfo &sectionInfo) {
@@ -136,15 +142,15 @@ void MainWindow::processSection(const qint16 &sectionId) {
 
   QString sectionFilePath =
       cuttingFilePathInfo.absoluteDir().filePath(sectionTitle + "." + cuttingFilePathInfo.suffix());
-  QString tmpSectionFilePath =
-      cuttingFilePathInfo.absoluteDir().filePath(sectionTitle + "-مؤقت." + cuttingFilePathInfo.suffix());
+  QString tmpSectionFilePath = cuttingFilePathInfo.absoluteDir().filePath(
+      sectionTitle + MainWindow::TEMPORARY_FILE_SUFFIX + "." + cuttingFilePathInfo.suffix());
 
   if (introFilePath.isEmpty() && outroFilePath.isEmpty()) {
     ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, sectionFilePath,
-                           ui->quickCut->isChecked());
+                           ui->quickCut->isChecked(), std::bind(&MainWindow::updateProcessTimer, this));
   } else {
     ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, tmpSectionFilePath,
-                           ui->quickCut->isChecked());
+                           ui->quickCut->isChecked(), std::bind(&MainWindow::updateProcessTimer, this));
 
     QVector<QString> filesToMerge;
     int baseVideoIndex = 0;
@@ -160,8 +166,30 @@ void MainWindow::processSection(const qint16 &sectionId) {
       filesToMerge.append(outroFilePath);
     }
 
-    ffmpegWrapper->mergeFiles(filesToMerge, baseVideoIndex, sectionFilePath, ui->quickMerge->isChecked());
+    ffmpegWrapper->mergeFiles(filesToMerge, baseVideoIndex, sectionFilePath, ui->quickMerge->isChecked(),
+                              std::bind(&MainWindow::updateProcessTimer, this));
 
     fileHelpers->deleteFile(tmpSectionFilePath);
+  }
+}
+
+void MainWindow::resetProcessTime() { ui->processTimer->setText(MainWindow::PROCESS_TIMER_DEFAULT_VALUE); }
+
+void MainWindow::updateProcessTimer() {
+  QString currentTime = ui->processTimer->text();
+  ui->processTimer->setText(
+      timeHelpers->addMillisecondsToTime(currentTime, MainWindow::PROCESS_UPDATE_EVERY_MILLISECONDS));
+}
+
+void MainWindow::toggleActionableElements() {
+  QList<QPushButton *> buttons = ui->centralwidget->findChildren<QPushButton *>();
+  QList<QCheckBox *> checkBoxes = ui->centralwidget->findChildren<QCheckBox *>();
+
+  for (int i = 0; i < buttons.size(); ++i) {
+    buttons[i]->setEnabled(!buttons[i]->isEnabled());
+  }
+
+  for (int i = 0; i < checkBoxes.size(); ++i) {
+    checkBoxes[i]->setEnabled(!checkBoxes[i]->isEnabled());
   }
 }
