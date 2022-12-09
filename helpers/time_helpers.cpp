@@ -5,17 +5,12 @@
 
 TimeHelpers::TimeHelpers() {}
 
-// This function was written by ChatGPT (with some renamings).
+// This function was written by ChatGPT (with some renamings and modifications).
 QString TimeHelpers::secondsToTimeFormat(const qint32 &seconds) {
-  QTime t = QTime::fromMSecsSinceStartOfDay(seconds * 1000);
-  return t.toString("hh:mm:ss");
+  return QTime::fromMSecsSinceStartOfDay(seconds * 1000).toString("hh:mm:ss");
 }
 
-// This function was written by ChatGPT (with some renamings).
+// This function was written by ChatGPT (with some renamings and modifications).
 QString TimeHelpers::addMillisecondsToTime(const QString &time, const qint32 &milliseconds) {
-  QTime t = QTime::fromString(time, "hh:mm:ss.zzz");
-
-  t = t.addMSecs(milliseconds);
-
-  return t.toString("hh:mm:ss.zzz");
+  return QTime::fromString(time, "hh:mm:ss.zzz").addMSecs(milliseconds).toString("hh:mm:ss.zzz");
 }
