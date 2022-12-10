@@ -7,31 +7,19 @@
 #include "helpers/file_helpers.h"
 #include "helpers/time_helpers.h"
 #include "readers/sections_reader.h"
+#include "windows/about_window.h"
 #include "wrappers/ffmpeg_wrapper.h"
 
-QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
-QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
  public:
-  MainWindow(QWidget *parent = nullptr);
-  void setupUi();
+  explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
-
- private slots:
-  void selectCuttingFile();
-  void addSection();
-  void importSections();
-  void removeSection(QTableWidgetItem *item);
-  void clearSections();
-  void selectIntroFile();
-  void selectOutroFile();
-  void processSections();
 
  private:
   static const QString TEMPORARY_FILE_SUFFIX;
@@ -41,22 +29,31 @@ class MainWindow : public QMainWindow {
 
   Ui::MainWindow *ui;
 
+  AboutWindow *aboutWindow;
+
+  QMenuBar *mainMenuBar;
+  QMenu *mainMenu;
+  QAction *aboutAction;
+
   qint32 currentSection;
   FFmpegWrapper *ffmpegWrapper;
   FileHelpers *fileHelpers;
   SectionsReader *sectionsReader;
   TimeHelpers *timeHelpers;
 
-  enum columns {
-    SECTION_TITLE = 0,
-    SECTION_START_TIME = 1,
-    SECTION_END_TIME = 2,
-    SECTION_DURATION = 3,
-  };
+  void setupUi();
+  void setupMainMenu();
 
+ private slots:
+  void addSection();
+  void importSections();
+  void clearSections();
+  void processSections();
+
+ private:
   void addSectionToTable(const SectionInfo &sectionInfo);
   bool processSection(const qint16 &sectionId);
-  void resetProcessTime();
+  void resetProcessTimer();
   void updateProcessTimer();
   void toggleActionableElements();
 };

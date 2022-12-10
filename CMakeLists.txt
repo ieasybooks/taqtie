@@ -19,6 +19,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
 set(PROJECT_SOURCES
         main.cpp
 
+        enums/section_columns.h
+
         helpers/file_helpers.h
         helpers/file_helpers.cpp
         helpers/process_helpers.h
@@ -32,9 +34,12 @@ set(PROJECT_SOURCES
         readers/sections_reader.h
         readers/sections_reader.cpp
 
-        windows/main_window.cpp
         windows/main_window.h
+        windows/main_window.cpp
         windows/main_window.ui
+        windows/about_window.h
+        windows/about_window.cpp
+        windows/about_window.ui
 
         wrappers/ffmpeg_wrapper.h
         wrappers/ffmpeg_wrapper.cpp

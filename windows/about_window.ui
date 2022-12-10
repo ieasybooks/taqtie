@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AboutWindow</class>
+ <widget class="QWidget" name="AboutWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>548</width>
+    <height>369</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>عن تقطيع</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="leftMargin">
+    <number>9</number>
+   </property>
+   <property name="topMargin">
+    <number>9</number>
+   </property>
+   <property name="rightMargin">
+    <number>9</number>
+   </property>
+   <property name="bottomMargin">
+    <number>9</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;
+    &lt;head&gt;
+        &lt;style&gt;
+            .m-0 {
+                margin: 0;
+            }
+            
+            .highlighted-name {
+                font-weight: 900;
+                color: chocolate;
+            }
+        &lt;/style&gt;
+    &lt;/head&gt;
+
+    &lt;body dir=&quot;rtl&quot;&gt;
+        &lt;p class=&quot;m-0&quot; align=&quot;justify&quot;&gt;
+            يسعى برنامج &lt;span class=&quot;highlighted-name&quot;&gt;تقطيع&lt;/span&gt; إلى تسهيل عملية معالجة المرئيات والصوتيات على الدعاة والعلماء أثناء تجهيز المواد الدعوية والعلمية من خلال توفير المميزات التالية:
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot;&gt;
+            &amp;nbsp;&amp;#x2022; تقطيع مرئية/صوتية بناءً على أوقات بداية ونهاية مختلفة
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot;&gt;
+            &amp;nbsp;&amp;#x2022; دمج مقدمة و/أو خاتمة مع المرئيات/الصوتيات التي تم تقطيعها 
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot; align=&quot;justify&quot;&gt;
+            ونسعى في المستقبل إلى إضافة مميزات أخرى مثل إزالة الوقفات الطويلة والتشويش على المشاهد المخلّة بشكل تلقائي.
+        &lt;/p&gt;
+        &lt;p align=&quot;justify&quot;&gt;
+            &lt;span class=&quot;highlighted-name&quot;&gt;تقطيع&lt;/span&gt; هو أحد منتجات مشروع &lt;span class=&quot;highlighted-name&quot;&gt;الكتب المُيسّرة&lt;/span&gt;، والذي يهدف إلى تسهيل وتيسير وصول المسلمين بكافة مستوياتهم إلى الكتب الإسلامية الأساسية في شتّى علوم الإسلام مثل العقيدة، السيرة والحديث بطرق تقنية حديثة وسلسة، وإلى إنشاء أدوات وبرامج تُسهم في إثراء المحتوى التقني الإسلامي من خلال زيادة إنتاجية الدعاة أو من خلال توظيف التقنيات المختلفة في مجالات الدعوة والعلم الشرعي.
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot;&gt;
+            يمكنك متابعة مشروع &lt;span class=&quot;highlighted-name&quot;&gt;الكتب المُيسّرة&lt;/span&gt; والتواصل معنا من خلال:
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot;&gt;
+            &amp;nbsp;&amp;#x2022; &lt;a href=&quot;https://t.me/ieasybooks&quot;&gt;
+                &lt;span style=&quot;text-decoration: none; color:#007af4;&quot;&gt;
+                    قناتنا على تيليجرام
+                &lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot;&gt;
+            &amp;nbsp;&amp;#x2022; &lt;a href=&quot;https://youtube.com/@ieasybooks&quot;&gt;
+                &lt;span style=&quot;text-decoration: none; color:#007af4;&quot;&gt;
+                    قناتنا على يوتيوب
+                &lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot;&gt;
+            &amp;nbsp;&amp;#x2022; &lt;a href=&quot;https://twitter.com/iieasybooks&quot;&gt;
+                &lt;span style=&quot;text-decoration: none; color:#007af4;&quot;&gt;
+                    حسابنا على تويتر
+                &lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot;&gt;
+            &amp;nbsp;&amp;#x2022; &lt;a href=&quot;https://fb.com/ieasybooks&quot;&gt;
+                &lt;span style=&quot;text-decoration: none; color:#007af4;&quot;&gt;
+                    صفحتنا على فيسبوك
+                &lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot;&gt;
+            &amp;nbsp;&amp;#x2022; &lt;a href=&quot;https://github.com/ieasybooks&quot;&gt;
+                &lt;span style=&quot;text-decoration: none; color:#007af4;&quot;&gt;
+                    حسابنا على GitHub (للمبرمجين)
+                &lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/p&gt;
+        &lt;p class=&quot;m-0&quot;&gt;
+            &amp;nbsp;&amp;#x2022; بريدنا الالكتروني: easybooksdev@gmail.com
+        &lt;/p&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::RichText</enum>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeAboutWindow">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>إغلاق</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>closeAboutWindow</sender>
+   <signal>clicked()</signal>
+   <receiver>AboutWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>59</x>
+     <y>343</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

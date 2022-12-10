@@ -808,6 +808,11 @@
     </item>
    </layout>
   </widget>
+  <action name="action">
+   <property name="text">
+    <string>تجربة</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>sectionTitle</tabstop>

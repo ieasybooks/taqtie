@@ -1,9 +1,11 @@
 #include "windows/main_window.h"
 
 #include <QFileDialog>
+#include <QMenuBar>
 #include <QMessageBox>
 #include <QProcess>
 
+#include "enums/section_columns.h"
 #include "ui_main_window.h"
 
 const QString MainWindow::TEMPORARY_FILE_SUFFIX = "-مؤقت";
@@ -14,12 +16,37 @@ const QVector<QString> MainWindow::ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS = {"M
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
+
+      aboutWindow(new AboutWindow),
+
+      mainMenuBar(new QMenuBar),
+      mainMenu(new QMenu),
+      aboutAction(new QAction("عن تقطيع")),
+
       currentSection(0),
+
       ffmpegWrapper(new FFmpegWrapper),
       fileHelpers(new FileHelpers),
       sectionsReader(new SectionsReader),
       timeHelpers(new TimeHelpers) {
-  setupUi();
+  this->setupUi();
+
+  this->aboutWindow->setWindowModality(Qt::ApplicationModal);
+}
+
+MainWindow::~MainWindow() {
+  delete ui;
+
+  delete aboutWindow;
+
+  delete mainMenuBar;
+  delete mainMenu;
+  delete aboutAction;
+
+  delete ffmpegWrapper;
+  delete fileHelpers;
+  delete sectionsReader;
+  delete timeHelpers;
 }
 
 void MainWindow::setupUi() {
@@ -27,25 +54,35 @@ void MainWindow::setupUi() {
 
   ui->sections->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-  connect(ui->selectFile, &QPushButton::clicked, this, &MainWindow::selectCuttingFile);
   connect(ui->addSection, &QPushButton::clicked, this, &MainWindow::addSection);
   connect(ui->importSections, &QPushButton::clicked, this, &MainWindow::importSections);
-  connect(ui->sections, &QTableWidget::itemDoubleClicked, this, &MainWindow::removeSection);
   connect(ui->clearSections, &QPushButton::clicked, this, &MainWindow::clearSections);
-  connect(ui->selectIntroFile, &QPushButton::clicked, this, &MainWindow::selectIntroFile);
-  connect(ui->selectOutroFile, &QPushButton::clicked, this, &MainWindow::selectOutroFile);
   connect(ui->processSections, &QPushButton::clicked, this, &MainWindow::processSections);
+
+  connect(ui->selectFile, &QPushButton::clicked, this,
+          [this]() -> void { ui->cuttingFilePath->setText(fileHelpers->selectFile(this)); });
+
+  connect(ui->sections, &QTableWidget::itemDoubleClicked, this,
+          [this](QTableWidgetItem *item) -> void { ui->sections->removeRow(item->row()); });
+
+  connect(ui->selectIntroFile, &QPushButton::clicked, this,
+          [this]() -> void { ui->introFilePath->setText(fileHelpers->selectFile(this)); });
+
+  connect(ui->selectOutroFile, &QPushButton::clicked, this,
+          [this]() -> void { ui->outroFilePath->setText(fileHelpers->selectFile(this)); });
+
+  this->setupMainMenu();
 }
 
-MainWindow::~MainWindow() {
-  delete ui;
-  delete ffmpegWrapper;
-  delete fileHelpers;
-  delete sectionsReader;
-  delete timeHelpers;
-}
+void MainWindow::setupMainMenu() {
+  this->aboutAction->setMenuRole(QAction::ApplicationSpecificRole);
+  this->mainMenu->addAction(this->aboutAction);
+  this->mainMenuBar->addMenu(this->mainMenu);
 
-void MainWindow::selectCuttingFile() { ui->cuttingFilePath->setText(fileHelpers->selectFile(this)); }
+  this->setMenuBar(this->mainMenuBar);
+
+  connect(this->aboutAction, &QAction::triggered, this, [this]() -> void { this->aboutWindow->show(); });
+}
 
 void MainWindow::addSection() {
   QString sectionTitle = ui->sectionTitle->text();
@@ -88,8 +125,6 @@ void MainWindow::importSections() {
   }
 }
 
-void MainWindow::removeSection(QTableWidgetItem *item) { ui->sections->removeRow(item->row()); }
-
 void MainWindow::clearSections() {
   while (ui->sections->rowCount() > 0) {
     ui->sections->removeRow(0);
@@ -100,13 +135,9 @@ void MainWindow::clearSections() {
   ui->sectionEndTime->setTime(QTime(0, 0, 0));
 }
 
-void MainWindow::selectIntroFile() { ui->introFilePath->setText(fileHelpers->selectFile(this)); }
-
-void MainWindow::selectOutroFile() { ui->outroFilePath->setText(fileHelpers->selectFile(this)); }
-
 void MainWindow::processSections() {
   this->toggleActionableElements();
-  this->resetProcessTime();
+  this->resetProcessTimer();
   ui->processProgress->setValue(0);
 
   for (qint16 i = 0; i < ui->sections->rowCount(); ++i) {
@@ -123,10 +154,12 @@ void MainWindow::addSectionToTable(const SectionInfo &sectionInfo) {
   qint16 rowsCount = ui->sections->rowCount();
 
   ui->sections->insertRow(rowsCount);
-  ui->sections->setItem(rowsCount, SECTION_TITLE, new QTableWidgetItem(sectionInfo.getTitle()));
-  ui->sections->setItem(rowsCount, SECTION_START_TIME, new QTableWidgetItem(sectionInfo.getStartTime().toString()));
-  ui->sections->setItem(rowsCount, SECTION_END_TIME, new QTableWidgetItem(sectionInfo.getEndTime().toString()));
-  ui->sections->setItem(rowsCount, SECTION_DURATION,
+  ui->sections->setItem(rowsCount, SectionColumns::SECTION_TITLE, new QTableWidgetItem(sectionInfo.getTitle()));
+  ui->sections->setItem(rowsCount, SectionColumns::SECTION_START_TIME,
+                        new QTableWidgetItem(sectionInfo.getStartTime().toString()));
+  ui->sections->setItem(rowsCount, SectionColumns::SECTION_END_TIME,
+                        new QTableWidgetItem(sectionInfo.getEndTime().toString()));
+  ui->sections->setItem(rowsCount, SectionColumns::SECTION_DURATION,
                         new QTableWidgetItem(this->timeHelpers->secondsToTimeFormat(
                             sectionInfo.getStartTime().secsTo(sectionInfo.getEndTime()))));
 }
@@ -135,9 +168,9 @@ bool MainWindow::processSection(const qint16 &sectionId) {
   QString cuttingFilePath = ui->cuttingFilePath->text();
   QFileInfo cuttingFilePathInfo = QFileInfo(cuttingFilePath);
 
-  QString sectionTitle = ui->sections->item(sectionId, SECTION_TITLE)->text();
-  QString sectionStartTime = ui->sections->item(sectionId, SECTION_START_TIME)->text();
-  QString sectionEndTime = ui->sections->item(sectionId, SECTION_END_TIME)->text();
+  QString sectionTitle = ui->sections->item(sectionId, SectionColumns::SECTION_TITLE)->text();
+  QString sectionStartTime = ui->sections->item(sectionId, SectionColumns::SECTION_START_TIME)->text();
+  QString sectionEndTime = ui->sections->item(sectionId, SectionColumns::SECTION_END_TIME)->text();
 
   QString introFilePath = ui->introFilePath->text();
   QString outroFilePath = ui->outroFilePath->text();
@@ -186,7 +219,7 @@ bool MainWindow::processSection(const qint16 &sectionId) {
   return true;
 }
 
-void MainWindow::resetProcessTime() { ui->processTimer->setText(MainWindow::PROCESS_TIMER_DEFAULT_VALUE); }
+void MainWindow::resetProcessTimer() { ui->processTimer->setText(MainWindow::PROCESS_TIMER_DEFAULT_VALUE); }
 
 void MainWindow::updateProcessTimer() {
   QString currentTime = ui->processTimer->text();

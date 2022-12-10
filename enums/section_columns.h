@@ -1,0 +1,11 @@
+#ifndef SECTION_COLUMNS_H
+#define SECTION_COLUMNS_H
+
+enum SectionColumns {
+  SECTION_TITLE = 0,
+  SECTION_START_TIME = 1,
+  SECTION_END_TIME = 2,
+  SECTION_DURATION = 3,
+};
+
+#endif  // SECTION_COLUMNS_H
