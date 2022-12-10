@@ -72,7 +72,7 @@ target_link_libraries(taqtie PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(taqtie PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
 set_target_properties(taqtie PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+    MACOSX_BUNDLE_GUI_IDENTIFIER taqtie.ieasybooks.com
     MACOSX_BUNDLE_BUNDLE_NAME تقطيع
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
