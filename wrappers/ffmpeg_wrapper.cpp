@@ -23,8 +23,7 @@ FFmpegWrapper::FFmpegWrapper() {
   this->processHelpers = new ProcessHelpers();
 
 #ifdef Q_OS_MACOS
-  this->ffmpegExecutablePath = "/opt/homebrew/bin/ffmpeg";
-  this->ffprobeExecutablePath = "/opt/homebrew/bin/ffprobe";
+  this->appendMacOSExecutablePaths();
 #endif
 }
 
@@ -176,4 +175,10 @@ void FFmpegWrapper::mergeFilesWithDemuxer(const QVector<QString>& filesPaths, co
   this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments, callback);
 
   fileHelpers->deleteFile(demuxerListFileName);
+}
+
+void FFmpegWrapper::appendMacOSExecutablePaths() {
+  QString pathEnvironmentVariable = qgetenv("PATH");
+  pathEnvironmentVariable.append(":/opt/homebrew/bin:/usr/local/bin:/usr/bin");
+  setenv("PATH", pathEnvironmentVariable.toStdString().c_str(), true);
 }

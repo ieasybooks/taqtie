@@ -39,6 +39,8 @@ class FFmpegWrapper {
 
   FileHelpers *fileHelpers;
   ProcessHelpers *processHelpers;
+
+  void appendMacOSExecutablePaths();
 };
 
 #endif  // FFMPEGWRAPPER_H
