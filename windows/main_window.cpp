@@ -96,7 +96,7 @@ void MainWindow::addSection() {
 
   if (sectionStartTime >= sectionEndTime) {
     QMessageBox messageBox;
-    messageBox.critical(0, "خطأ", "وقت البداية يجب أن يكون أقل من وقت النهاية.");
+    messageBox.critical(this, "خطأ", "وقت البداية يجب أن يكون أقل من وقت النهاية.");
 
     return;
   }
@@ -140,11 +140,19 @@ void MainWindow::processSections() {
   this->resetProcessTimer();
   ui->processProgress->setValue(0);
 
+  bool errorsHappened = false;
+
   for (qint16 i = 0; i < ui->sections->rowCount(); ++i) {
     if (!this->processSection(i)) {
+      errorsHappened = true;
       break;
     }
     ui->processProgress->setValue(1.0 * (i + 1) / ui->sections->rowCount() * 100);
+  }
+
+  if (!errorsHappened) {
+    QMessageBox messageBox;
+    messageBox.information(this, "إنتهينا!", "تم الإنتهاء من العملية التي بدأتها! ستجد المخرجات في مجلد الملف الأصلي.");
   }
 
   this->toggleActionableElements();
@@ -182,7 +190,7 @@ bool MainWindow::processSection(const qint16 &sectionId) {
 
   if (QFile::exists(sectionFilePath)) {
     QMessageBox messageBox;
-    messageBox.critical(0, "خطأ",
+    messageBox.critical(this, "خطأ",
                         "يوجد ملف باسم \"" + sectionTitle +
                             "\" مسبقًا، يُرجى اختيار اسم آخر.\n"
                             "سيتم إيقاف العملية عند هذا الملف، يُرجى متابعة العملية بعد حل المشكلة.");
