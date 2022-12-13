@@ -795,6 +795,12 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="minimumSize">
+             <size>
+              <width>85</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
              <string>00:00:00.000</string>
             </property>
@@ -808,11 +814,6 @@
     </item>
    </layout>
   </widget>
-  <action name="action">
-   <property name="text">
-    <string>تجربة</string>
-   </property>
-  </action>
  </widget>
  <tabstops>
   <tabstop>sectionTitle</tabstop>
