@@ -74,12 +74,16 @@ else()
     if(ANDROID)
         add_library(taqtie SHARED
             ${PROJECT_SOURCES}
+#            ${APP_RES}
+            ${QT_RES}
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
         add_executable(taqtie
             ${PROJECT_SOURCES}
+#            ${APP_RES}
+            ${QT_RES}
         )
     endif()
 endif()
@@ -92,6 +96,7 @@ set_target_properties(taqtie PROPERTIES
     MACOSX_BUNDLE_BUNDLE_NAME تقطيع
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    OUTPUT_NAME تقطيع
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
