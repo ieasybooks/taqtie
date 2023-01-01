@@ -15,7 +15,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Core)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core LinguistTools)
 
 # For more information, see https://github.com/pedrolcl/qt-i18n
@@ -59,34 +59,22 @@ set(PROJECT_SOURCES
 # add_app_translations_resource(APP_RES ${QM_FILES})
 add_qt_translations_resource(QT_RES ar)
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(taqtie
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-#        ${APP_RES}
-        ${QT_RES}
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET taqtie APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-else()
-    if(ANDROID)
-        add_library(taqtie SHARED
-            ${PROJECT_SOURCES}
-#            ${APP_RES}
-            ${QT_RES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(taqtie
-            ${PROJECT_SOURCES}
-#            ${APP_RES}
-            ${QT_RES}
-        )
-    endif()
+if (WIN32)
+    set(app_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/taqtie.rc")
+elseif (APPLE)
+    set(MACOSX_BUNDLE_ICON_FILE taqtie.icns)
+    set(app_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/taqtie.icns")
+
+    set_source_files_properties(${app_icon} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 endif()
+
+qt_add_executable(taqtie
+    MANUAL_FINALIZATION
+    ${PROJECT_SOURCES}
+#    ${APP_RES}
+    ${QT_RES}
+    ${app_icon}
+)
 
 target_link_libraries(taqtie PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(taqtie PRIVATE Qt${QT_VERSION_MAJOR}::Core)
@@ -103,17 +91,16 @@ set_target_properties(taqtie PROPERTIES
 
 install(TARGETS taqtie
     BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(taqtie)
-endif()
+qt_finalize_executable(taqtie)
 
 FetchContent_Declare(
-  QXlsx
-  GIT_REPOSITORY https://github.com/QtExcel/QXlsx.git
-  GIT_TAG        b5585decd4e1d30ddd6563556c1c6a8da6753492
-  SOURCE_SUBDIR  QXlsx
+    QXlsx
+    GIT_REPOSITORY https://github.com/QtExcel/QXlsx.git
+    GIT_TAG        b5585decd4e1d30ddd6563556c1c6a8da6753492
+    SOURCE_SUBDIR  QXlsx
 )
 FetchContent_MakeAvailable(QXlsx)
 target_link_libraries(taqtie PRIVATE QXlsx::QXlsx)
