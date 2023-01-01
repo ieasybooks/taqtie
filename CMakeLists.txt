@@ -89,6 +89,17 @@ set_target_properties(taqtie PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+set(taqtie_resource_files
+    "resources/taqtie.jpeg"
+)
+
+qt6_add_resources(taqtie "taqtie"
+    PREFIX
+        "/"
+    FILES
+        ${taqtie_resource_files}
+)
+
 install(TARGETS taqtie
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

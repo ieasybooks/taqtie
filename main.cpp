@@ -4,21 +4,24 @@
 #include "windows/main_window.h"
 
 int main(int argc, char *argv[]) {
-  QApplication qApplication(argc, argv);
+  QApplication application(argc, argv);
 
-  qApplication.setOrganizationName("الكتب المُيسّرة");
-  qApplication.setOrganizationDomain("ieasybooks.com");
-  qApplication.setApplicationDisplayName("تقطيع");
-  qApplication.setApplicationName("taqtie");
-  qApplication.setApplicationVersion("0.1");
+  application.setOrganizationName("الكتب المُيسّرة");
+  application.setOrganizationDomain("ieasybooks.com");
+  application.setApplicationDisplayName("تقطيع");
+  application.setApplicationName("taqtie");
+  application.setApplicationVersion("0.1");
 
-  QTranslator qtTranslator;
-  if (qtTranslator.load(":/qt_ar.qm")) {
-    qApplication.installTranslator(&qtTranslator);
+  QIcon icon(":/resources/taqtie.jpeg");
+  application.setWindowIcon(icon);
+
+  QTranslator translator;
+  if (translator.load(":/qt_ar.qm")) {
+    application.installTranslator(&translator);
   }
 
   MainWindow mainWindow;
   mainWindow.show();
 
-  return qApplication.exec();
+  return application.exec();
 }
