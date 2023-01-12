@@ -11,7 +11,7 @@
 const QString MainWindow::TEMPORARY_FILE_SUFFIX = "-مؤقت";
 const QString MainWindow::PROCESS_TIMER_DEFAULT_VALUE = "00:00:00.000";
 const qint32 MainWindow::PROCESS_UPDATE_EVERY_MILLISECONDS = 100;
-const QVector<QString> MainWindow::ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS = {"Microsoft Excel (*.xlsx)"};
+const QStringList MainWindow::ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS = {"Microsoft Excel (*.xlsx)"};
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),

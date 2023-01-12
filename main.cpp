@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   application.setApplicationName("taqtie");
   application.setApplicationVersion("0.1");
 
-  QIcon icon(":/resources/taqtie.jpeg");
+  QIcon icon(":/resources/taqtie.png");
   application.setWindowIcon(icon);
 
   QTranslator translator;

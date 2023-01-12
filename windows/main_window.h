@@ -25,7 +25,7 @@ class MainWindow : public QMainWindow {
   static const QString TEMPORARY_FILE_SUFFIX;
   static const QString PROCESS_TIMER_DEFAULT_VALUE;
   static const qint32 PROCESS_UPDATE_EVERY_MILLISECONDS;
-  static const QVector<QString> ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS;
+  static const QStringList ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS;
 
   Ui::MainWindow *ui;
 
