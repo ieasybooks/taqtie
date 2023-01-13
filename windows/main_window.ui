@@ -750,7 +750,7 @@
              <enum>Qt::RightToLeft</enum>
             </property>
             <property name="text">
-             <string>دمج سريع (من الممكن أن تفقد جودة الثواني الأولى من كل جزء)</string>
+             <string>دمج سريع (من الممكن أن تفقد جودة الثواني التي تم عندها الدمج)</string>
             </property>
            </widget>
           </item>
