@@ -7,8 +7,9 @@ class TimeHelpers {
  public:
   TimeHelpers();
 
-  QString secondsToTimeFormat(const qint32 &seconds);
-  QString addMillisecondsToTime(const QString &time, const qint32 &milliseconds);
+  int timeFormatToSeconds(const QString &timeFormat);
+  QString secondsToTimeFormat(const int &seconds);
+  QString addMillisecondsToTime(const QString &time, const int &milliseconds);
 };
 
 #endif  // TIMEHELPERS_H

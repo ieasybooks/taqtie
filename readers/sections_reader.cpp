@@ -15,7 +15,7 @@ const QVector<SectionInfo> SectionsReader::read(const QString &filePath) {
   if (filePathInfo.suffix() == "xlsx") {
     return this->fromExcel(filePath);
   } else {
-    throw std::invalid_argument("يجب أن يكون امتداد الملف xlsx.");
+    throw std::invalid_argument("File extension should be Xlsx.");
   }
 }
 

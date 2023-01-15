@@ -10,7 +10,7 @@
 
 const QString MainWindow::TEMPORARY_FILE_SUFFIX = "-مؤقت";
 const QString MainWindow::PROCESS_TIMER_DEFAULT_VALUE = "00:00:00.000";
-const qint32 MainWindow::PROCESS_UPDATE_EVERY_MILLISECONDS = 100;
+const int MainWindow::PROCESS_UPDATE_EVERY_MILLISECONDS = 100;
 const QStringList MainWindow::ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS = {"Microsoft Excel (*.xlsx)"};
 
 MainWindow::MainWindow(QWidget *parent)
@@ -198,11 +198,9 @@ bool MainWindow::processSection(const qint16 &sectionId) {
   }
 
   if (introFilePath.isEmpty() && outroFilePath.isEmpty()) {
-    ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, sectionFilePath,
-                           ui->quickCut->isChecked(), std::bind(&MainWindow::updateProcessTimer, this));
+    ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, sectionFilePath);
   } else {
-    ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, tmpSectionFilePath,
-                           ui->quickCut->isChecked(), std::bind(&MainWindow::updateProcessTimer, this));
+    ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, tmpSectionFilePath);
 
     QVector<QString> filesToMerge;
     int baseVideoIndex = 0;
