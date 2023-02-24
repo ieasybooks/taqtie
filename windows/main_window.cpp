@@ -71,6 +71,8 @@ void MainWindow::setupUi() {
   connect(ui->selectOutroFile, &QPushButton::clicked, this,
           [this]() -> void { ui->outroFilePath->setText(fileHelpers->selectFile(this)); });
 
+  ui->processTimer->setVisible(false);
+
   this->setupMainMenu();
 }
 
@@ -136,6 +138,12 @@ void MainWindow::clearSections() {
 }
 
 void MainWindow::processSections() {
+  if (ui->cuttingFilePath->text().trimmed().isEmpty()) {
+    QMessageBox messageBox;
+    messageBox.critical(this, "خطأ", "يجب اختيار ملف قبل البدأ في العملية.");
+    return;
+  }
+
   this->toggleActionableElements();
   this->resetProcessTimer();
   ui->processProgress->setValue(0);

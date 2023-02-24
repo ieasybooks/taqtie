@@ -28,17 +28,14 @@ class FFmpegWrapper {
    */
   void logPacket(const AVFormatContext *avFormatContext, const AVPacket *avPacket, const QString tag);
 
-  bool areFilesMergeable(const QStringList &filesPaths, const std::function<void()> &callback = nullptr);
-  bool areFilesStreamsEqual(const QStringList &filesPaths, const QString &properties,
-                            const std::function<void()> &callback = nullptr);
-  bool areFilesStreamsEqual(const QStringList &filesPaths, const QStringList &properties,
-                            const std::function<void()> &callback = nullptr);
+  bool areFilesMergeable(const QStringList &filesPaths);
+  bool areFilesStreamsEqual(const QStringList &filesPaths, const QString &properties);
+  bool areFilesStreamsEqual(const QStringList &filesPaths, const QStringList &properties);
 
-  QVector<QMap<QString, QVariant> > getFileStreamsProperties(const QString &filePath, const QString &requiredProperties,
-                                                             const std::function<void()> &callback = nullptr);
   QVector<QMap<QString, QVariant> > getFileStreamsProperties(const QString &filePath,
-                                                             const QStringList &requiredProperties,
-                                                             const std::function<void()> &callback = nullptr);
+                                                             const QString &requiredProperties);
+  QVector<QMap<QString, QVariant> > getFileStreamsProperties(const QString &filePath,
+                                                             const QStringList &requiredProperties);
 
   /**
    * @brief Cut a file in the given input file path based on the start and end seconds, and output the cutted file to

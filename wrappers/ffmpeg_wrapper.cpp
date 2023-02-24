@@ -53,24 +53,21 @@ void FFmpegWrapper::logPacket(const AVFormatContext* avFormatContext, const AVPa
                   .arg(avPacket->stream_index);
 }
 
-bool FFmpegWrapper::areFilesMergeable(const QStringList& filesPaths, const std::function<void()>& callback) {
+bool FFmpegWrapper::areFilesMergeable(const QStringList& filesPaths) {
   assert(filesPaths.size() >= 2);
-  return this->areFilesStreamsEqual(filesPaths, FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES, callback);
+  return this->areFilesStreamsEqual(filesPaths, FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES);
 }
 
-bool FFmpegWrapper::areFilesStreamsEqual(const QStringList& filesPaths, const QString& properties,
-                                         const std::function<void()>& callback) {
-  return this->areFilesStreamsEqual(filesPaths, properties.split(','), callback);
+bool FFmpegWrapper::areFilesStreamsEqual(const QStringList& filesPaths, const QString& properties) {
+  return this->areFilesStreamsEqual(filesPaths, properties.split(','));
 }
 
-bool FFmpegWrapper::areFilesStreamsEqual(const QStringList& filesPaths, const QStringList& properties,
-                                         const std::function<void()>& callback) {
+bool FFmpegWrapper::areFilesStreamsEqual(const QStringList& filesPaths, const QStringList& properties) {
   QVector<QMap<QString, QVariant>> firstFileStreamsProperties =
-      this->getFileStreamsProperties(filesPaths[0], properties, callback);
+      this->getFileStreamsProperties(filesPaths[0], properties);
 
   for (const QString& filePath : filesPaths) {
-    QVector<QMap<QString, QVariant>> otherFileStreamsProperties =
-        this->getFileStreamsProperties(filePath, properties, callback);
+    QVector<QMap<QString, QVariant>> otherFileStreamsProperties = this->getFileStreamsProperties(filePath, properties);
 
     if (otherFileStreamsProperties.size() != firstFileStreamsProperties.size()) {
       return false;
@@ -93,14 +90,12 @@ bool FFmpegWrapper::areFilesStreamsEqual(const QStringList& filesPaths, const QS
 }
 
 QVector<QMap<QString, QVariant>> FFmpegWrapper::getFileStreamsProperties(const QString& filePath,
-                                                                         const QString& requiredProperties,
-                                                                         const std::function<void()>& callback) {
-  return this->getFileStreamsProperties(filePath, requiredProperties.split(','), callback);
+                                                                         const QString& requiredProperties) {
+  return this->getFileStreamsProperties(filePath, requiredProperties.split(','));
 }
 
 QVector<QMap<QString, QVariant>> FFmpegWrapper::getFileStreamsProperties(const QString& filePath,
-                                                                         const QStringList& requiredProperties,
-                                                                         const std::function<void()>& callback) {
+                                                                         const QStringList& requiredProperties) {
   avformat_network_init();
 
   AVFormatContext* formatContext = nullptr;
@@ -276,6 +271,8 @@ bool FFmpegWrapper::cutFile(const QString& inputFilePath, const long long& start
     }
 
     while (true) {
+      QCoreApplication::processEvents();
+
       operationResult = av_read_frame(avInputFormatContext, avPacket);
       if (operationResult < 0) break;
 
@@ -287,7 +284,7 @@ bool FFmpegWrapper::cutFile(const QString& inputFilePath, const long long& start
       }
 
       avPacket->stream_index = streamMapping[avPacket->stream_index];
-      logPacket(avInputFormatContext, avPacket, "in");
+      // logPacket(avInputFormatContext, avPacket, "in");
 
       // Shift the packet to its new position by subtracting the rescaled start seconds.
       avPacket->pts -= streamRescaledStartSeconds[avPacket->stream_index];
@@ -296,7 +293,7 @@ bool FFmpegWrapper::cutFile(const QString& inputFilePath, const long long& start
       av_packet_rescale_ts(avPacket, avInputFormatContext->streams[avPacket->stream_index]->time_base,
                            avOutputFormatContext->streams[avPacket->stream_index]->time_base);
       avPacket->pos = -1;
-      logPacket(avOutputFormatContext, avPacket, "out");
+      // logPacket(avOutputFormatContext, avPacket, "out");
 
       operationResult = av_interleaved_write_frame(avOutputFormatContext, avPacket);
       if (operationResult < 0) {
