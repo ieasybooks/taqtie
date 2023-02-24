@@ -17,7 +17,7 @@
    <enum>Qt::RightToLeft</enum>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_12">
+   <layout class="QVBoxLayout" name="verticalLayout_9">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0">
       <item>
@@ -712,6 +712,25 @@
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_11">
+          <item>
+           <widget class="QCheckBox" name="quickCut">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::RightToLeft</enum>
+            </property>
+            <property name="text">
+             <string>تقطيع سريع (من الممكن أن تفقد جودة الثواني الأولى من كل جزء)</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QCheckBox" name="quickMerge">
             <property name="sizePolicy">

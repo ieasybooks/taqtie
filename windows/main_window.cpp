@@ -71,8 +71,6 @@ void MainWindow::setupUi() {
   connect(ui->selectOutroFile, &QPushButton::clicked, this,
           [this]() -> void { ui->outroFilePath->setText(fileHelpers->selectFile(this)); });
 
-  ui->processTimer->setVisible(false);
-
   this->setupMainMenu();
 }
 
@@ -206,9 +204,11 @@ bool MainWindow::processSection(const qint16 &sectionId) {
   }
 
   if (introFilePath.isEmpty() && outroFilePath.isEmpty()) {
-    ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, sectionFilePath);
+    ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, sectionFilePath,
+                           ui->quickCut->isChecked(), std::bind(&MainWindow::updateProcessTimer, this));
   } else {
-    ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, tmpSectionFilePath);
+    ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, tmpSectionFilePath,
+                           ui->quickCut->isChecked(), std::bind(&MainWindow::updateProcessTimer, this));
 
     QVector<QString> filesToMerge;
     int baseVideoIndex = 0;

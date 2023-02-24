@@ -117,13 +117,3 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(QXlsx)
 target_link_libraries(taqtie PRIVATE QXlsx::QXlsx)
-
-# FFmpeg Setup
-# This setup was found here:
-# - https://github.com/obsproject/obs-studio/blob/master/cmake/Modules/FindFFmpeg.cmake
-# - https://github.com/obsproject/obs-studio/blob/b51773b97b551cb409603146a97b2827d2a66ec3/plugins/obs-ffmpeg/CMakeLists.txt#L6
-# For more information, check the discussion here: https://forum.qt.io/topic/141950/bundle-ffmpeg-with-qt6-application-using-cmake.
-
-find_package(FFmpeg REQUIRED COMPONENTS avutil avcodec avformat avdevice avfilter swscale swresample postproc)
-target_include_directories(taqtie PRIVATE ${FFMPEG_INCLUDE_DIRS})
-target_link_libraries(taqtie PRIVATE ${FFMPEG_LIBRARIES})
