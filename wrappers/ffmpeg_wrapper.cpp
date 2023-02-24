@@ -17,13 +17,15 @@ const QStringList FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES = {
     "channels",   "channel_layout"};
 
 FFmpegWrapper::FFmpegWrapper() {
-  this->ffmpegExecutablePath = "ffmpeg";
-  this->ffprobeExecutablePath = "ffprobe";
+  this->ffmpegExecutablePath = "C:/ffmpeg/bin/ffmpeg.exe";
+  this->ffprobeExecutablePath = "C:/ffmpeg/bin/ffprobe.exe";
 
   this->fileHelpers = new FileHelpers();
   this->processHelpers = new ProcessHelpers();
 
 #ifdef Q_OS_MACOS
+  this->ffmpegExecutablePath = "ffmpeg";
+  this->ffprobeExecutablePath = "ffprobe";
   this->appendMacOSExecutablePaths();
 #endif
 }
@@ -192,8 +194,10 @@ void FFmpegWrapper::mergeFilesWithDemuxer(const QStringList& filesPaths, const Q
   fileHelpers->deleteFile(demuxerListFileName);
 }
 
+#ifdef Q_OS_MACOS
 void FFmpegWrapper::appendMacOSExecutablePaths() {
   QString pathEnvironmentVariable = qgetenv("PATH");
   pathEnvironmentVariable.append(":/opt/homebrew/bin:/usr/local/bin:/usr/bin");
   setenv("PATH", pathEnvironmentVariable.toStdString().c_str(), true);
 }
+#endif
