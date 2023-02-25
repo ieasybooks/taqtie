@@ -54,6 +54,9 @@ void MainWindow::setupUi() {
 
   ui->sections->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
+  ui->selectIntroFileLabelHint->setToolTip("سيتم دمج هذا الملف في بداية كل جزء من الأجزاء");
+  ui->selectOutroFileLabelHint->setToolTip("سيتم دمج هذا الملف في نهاية كل جزء من الأجزاء");
+
   connect(ui->addSection, &QPushButton::clicked, this, &MainWindow::addSection);
   connect(ui->importSections, &QPushButton::clicked, this, &MainWindow::importSections);
   connect(ui->clearSections, &QPushButton::clicked, this, &MainWindow::clearSections);
