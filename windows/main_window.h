@@ -57,5 +57,6 @@ class MainWindow : public QMainWindow {
   void resetProcessTimer();
   void updateProcessTimer();
   void toggleActionableElements();
+  bool areInputsValid();
 };
 #endif  // MAINWINDOW_H

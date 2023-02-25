@@ -147,9 +147,7 @@ void MainWindow::clearSections() {
 }
 
 void MainWindow::processSections() {
-  if (ui->cuttingFilePath->text().trimmed().isEmpty()) {
-    QMessageBox messageBox;
-    messageBox.critical(this, "خطأ", "يجب اختيار ملف قبل البدأ في العملية.");
+  if (!this->areInputsValid()) {
     return;
   }
 
@@ -264,4 +262,38 @@ void MainWindow::toggleActionableElements() {
   for (int i = 0; i < checkBoxes.size(); ++i) {
     checkBoxes[i]->setEnabled(!checkBoxes[i]->isEnabled());
   }
+}
+
+bool MainWindow::areInputsValid() {
+  if (ui->cuttingFilePath->text().trimmed().isEmpty()) {
+    QMessageBox messageBox;
+    messageBox.critical(this, "خطأ", "يجب اختيار ملف قبل البدأ في العملية.");
+    return false;
+  }
+
+  if (ui->sections->rowCount() == 0) {
+    QMessageBox messageBox;
+    messageBox.critical(this, "خطأ", "يجب إضافة جزء واحد على الأقل.");
+    return false;
+  }
+
+  if (!QFile::exists(ui->cuttingFilePath->text().trimmed())) {
+    QMessageBox messageBox;
+    messageBox.critical(this, "خطأ", "الملف المراد تقطيعه غير موجود.");
+    return false;
+  }
+
+  if (!ui->introFilePath->text().trimmed().isEmpty() && !QFile::exists(ui->introFilePath->text().trimmed())) {
+    QMessageBox messageBox;
+    messageBox.critical(this, "خطأ", "ملف البادئة غير موجود.");
+    return false;
+  }
+
+  if (!ui->outroFilePath->text().trimmed().isEmpty() && !QFile::exists(ui->outroFilePath->text().trimmed())) {
+    QMessageBox messageBox;
+    messageBox.critical(this, "خطأ", "ملف الخاتمة غير موجود.");
+    return false;
+  }
+
+  return true;
 }

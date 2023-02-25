@@ -608,7 +608,7 @@
            </size>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::StrongFocus</enum>
+           <enum>Qt::ClickFocus</enum>
           </property>
           <property name="layoutDirection">
            <enum>Qt::RightToLeft</enum>
@@ -620,7 +620,7 @@
            <bool>false</bool>
           </property>
           <property name="placeholderText">
-           <string>مثال: 1-5 - 5+3+7 - 1-3+8+6+4-5</string>
+           <string>مثال: 1-5 5+3+7 1-3+8+6+4-5</string>
           </property>
          </widget>
         </item>
