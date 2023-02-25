@@ -99,7 +99,6 @@ void MainWindow::addSection() {
   if (sectionStartTime >= sectionEndTime) {
     QMessageBox messageBox;
     messageBox.critical(this, "خطأ", "وقت البداية يجب أن يكون أقل من وقت النهاية.");
-
     return;
   }
 
@@ -265,32 +264,84 @@ void MainWindow::toggleActionableElements() {
 }
 
 bool MainWindow::areInputsValid() {
+  QMessageBox messageBox;
+
   if (ui->cuttingFilePath->text().trimmed().isEmpty()) {
-    QMessageBox messageBox;
     messageBox.critical(this, "خطأ", "يجب اختيار ملف قبل البدأ في العملية.");
     return false;
   }
 
-  if (ui->sections->rowCount() == 0) {
-    QMessageBox messageBox;
-    messageBox.critical(this, "خطأ", "يجب إضافة جزء واحد على الأقل.");
-    return false;
-  }
-
   if (!QFile::exists(ui->cuttingFilePath->text().trimmed())) {
-    QMessageBox messageBox;
     messageBox.critical(this, "خطأ", "الملف المراد تقطيعه غير موجود.");
     return false;
   }
 
+  if (ui->sections->rowCount() == 0) {
+    messageBox.critical(this, "خطأ", "يجب إضافة جزء واحد على الأقل.");
+    return false;
+  }
+
+  if (!ui->sectionsToMerge->text().trimmed().isEmpty()) {
+    QStringList tokenizedSectionsToMerge = ui->sectionsToMerge->text().trimmed().split(" ");
+
+    for (const QString &sectionToMerge : tokenizedSectionsToMerge) {
+      QStringList tokenizedSectionToMerge;
+      bool numberExpected = true;
+
+      for (int i = 0; i < sectionToMerge.length();) {
+        if (numberExpected) {
+          QString number = "";
+
+          while (i < sectionToMerge.length() && sectionToMerge[i].isDigit()) {
+            number += sectionToMerge[i];
+            ++i;
+          }
+
+          if (number.isEmpty()) {
+            messageBox.critical(this, "خطأ", "يوجد خطأ في مدخلات الأجزاء المُراد دمجها بعد التقطيع.");
+            return false;
+          }
+
+          tokenizedSectionToMerge.append(number);
+        } else {
+          if (sectionToMerge[i] != '-' && sectionToMerge[i] != '+') {
+            messageBox.critical(this, "خطأ", "يوجد خطأ في مدخلات الأجزاء المُراد دمجها بعد التقطيع.");
+            return false;
+          }
+
+          tokenizedSectionToMerge.append(sectionToMerge[i++]);
+        }
+
+        numberExpected = !numberExpected;
+      }
+
+      if (numberExpected || tokenizedSectionToMerge.size() < 3) {
+        messageBox.critical(this, "خطأ", "يوجد خطأ في مدخلات الأجزاء المُراد دمجها بعد التقطيع.");
+        return false;
+      }
+
+      for (int i = 0; i < tokenizedSectionToMerge.size(); ++i) {
+        if (tokenizedSectionToMerge[i] != '-' && tokenizedSectionToMerge[i] != '+' &&
+            tokenizedSectionToMerge[i].toInt() > ui->sections->rowCount()) {
+          messageBox.critical(this, "خطأ", "يوجد خطأ في مدخلات الأجزاء المُراد دمجها بعد التقطيع.");
+          return false;
+        }
+
+        if (tokenizedSectionToMerge[i] == '-' &&
+            tokenizedSectionToMerge[i - 1].toInt() >= tokenizedSectionToMerge[i + 1].toInt()) {
+          messageBox.critical(this, "خطأ", "يوجد خطأ في مدخلات الأجزاء المُراد دمجها بعد التقطيع.");
+          return false;
+        }
+      }
+    }
+  }
+
   if (!ui->introFilePath->text().trimmed().isEmpty() && !QFile::exists(ui->introFilePath->text().trimmed())) {
-    QMessageBox messageBox;
     messageBox.critical(this, "خطأ", "ملف البادئة غير موجود.");
     return false;
   }
 
   if (!ui->outroFilePath->text().trimmed().isEmpty() && !QFile::exists(ui->outroFilePath->text().trimmed())) {
-    QMessageBox messageBox;
     messageBox.critical(this, "خطأ", "ملف الخاتمة غير موجود.");
     return false;
   }
