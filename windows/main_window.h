@@ -46,13 +46,14 @@ class MainWindow : public QMainWindow {
 
  private slots:
   void addSection();
+  void removeSection(QTableWidgetItem *item);
   void importSections();
   void clearSections();
   void processSections();
 
  private:
   void addSectionToTable(const SectionInfo &sectionInfo);
-  bool processSection(const qint16 &sectionId);
+  bool processSection(const int &sectionId);
   void resetProcessTimer();
   void updateProcessTimer();
   void toggleActionableElements();

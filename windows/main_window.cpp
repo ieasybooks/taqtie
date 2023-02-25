@@ -52,21 +52,20 @@ MainWindow::~MainWindow() {
 void MainWindow::setupUi() {
   ui->setupUi(this);
 
-  ui->sections->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  ui->sections->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
+  ui->sectionsToMergeLabelHint->setToolTip("سيتم دمج هذه الأجزاء مع الإبقاء على الأجزاء المقطعة");
   ui->selectIntroFileLabelHint->setToolTip("سيتم دمج هذا الملف في بداية كل جزء من الأجزاء");
   ui->selectOutroFileLabelHint->setToolTip("سيتم دمج هذا الملف في نهاية كل جزء من الأجزاء");
 
   connect(ui->addSection, &QPushButton::clicked, this, &MainWindow::addSection);
+  connect(ui->sections, &QTableWidget::itemDoubleClicked, this, &MainWindow::removeSection);
   connect(ui->importSections, &QPushButton::clicked, this, &MainWindow::importSections);
   connect(ui->clearSections, &QPushButton::clicked, this, &MainWindow::clearSections);
   connect(ui->processSections, &QPushButton::clicked, this, &MainWindow::processSections);
 
   connect(ui->selectFile, &QPushButton::clicked, this,
           [this]() -> void { ui->cuttingFilePath->setText(fileHelpers->selectFile(this)); });
-
-  connect(ui->sections, &QTableWidget::itemDoubleClicked, this,
-          [this](QTableWidgetItem *item) -> void { ui->sections->removeRow(item->row()); });
 
   connect(ui->selectIntroFile, &QPushButton::clicked, this,
           [this]() -> void { ui->introFilePath->setText(fileHelpers->selectFile(this)); });
@@ -111,6 +110,15 @@ void MainWindow::addSection() {
   ui->sectionStartTime->setTime(sectionEndTime);
 }
 
+void MainWindow::removeSection(QTableWidgetItem *item) {
+  int row = item->row();
+  ui->sections->removeRow(row);
+
+  for (int i = row; i < ui->sections->rowCount(); ++i) {
+    ui->sections->setItem(i, SectionColumns::SECTION_INDEX, new QTableWidgetItem(QString::number(i + 1)));
+  }
+}
+
 void MainWindow::importSections() {
   QString filePath = fileHelpers->selectFile(this, MainWindow::ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS.join(";;"));
 
@@ -151,7 +159,7 @@ void MainWindow::processSections() {
 
   bool errorsHappened = false;
 
-  for (qint16 i = 0; i < ui->sections->rowCount(); ++i) {
+  for (int i = 0; i < ui->sections->rowCount(); ++i) {
     if (!this->processSection(i)) {
       errorsHappened = true;
       break;
@@ -168,9 +176,10 @@ void MainWindow::processSections() {
 }
 
 void MainWindow::addSectionToTable(const SectionInfo &sectionInfo) {
-  qint16 rowsCount = ui->sections->rowCount();
+  int rowsCount = ui->sections->rowCount();
 
   ui->sections->insertRow(rowsCount);
+  ui->sections->setItem(rowsCount, SectionColumns::SECTION_INDEX, new QTableWidgetItem(QString::number(rowsCount + 1)));
   ui->sections->setItem(rowsCount, SectionColumns::SECTION_TITLE, new QTableWidgetItem(sectionInfo.getTitle()));
   ui->sections->setItem(rowsCount, SectionColumns::SECTION_START_TIME,
                         new QTableWidgetItem(sectionInfo.getStartTime().toString()));
@@ -181,7 +190,7 @@ void MainWindow::addSectionToTable(const SectionInfo &sectionInfo) {
                             sectionInfo.getStartTime().secsTo(sectionInfo.getEndTime()))));
 }
 
-bool MainWindow::processSection(const qint16 &sectionId) {
+bool MainWindow::processSection(const int &sectionId) {
   QString cuttingFilePath = ui->cuttingFilePath->text();
   QFileInfo cuttingFilePathInfo = QFileInfo(cuttingFilePath);
 
