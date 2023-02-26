@@ -132,43 +132,6 @@ void FFmpegWrapper::mergeFiles(const QStringList& filesPaths, const int& baseVid
   }
 }
 
-void FFmpegWrapper::mergeFilesWithConcatFilter(const QStringList& filesPaths, const int& baseVideoIndex,
-                                               const QString& outputFilePath, const std::function<void()>& callback) {
-  QVector<QMap<QString, QString>> fileStreamsProperties =
-      this->getFileStreamsProperties(filesPaths[baseVideoIndex], FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES);
-
-  QStringList arguments;
-
-  QString filterComplex = "";
-
-  for (int i = 0; i < filesPaths.size(); ++i) {
-    arguments << "-i" << filesPaths[i];
-    filterComplex += "[" + QString::number(i) + ":v]";
-    filterComplex += "scale=" + fileStreamsProperties[0]["width"] + ":" + fileStreamsProperties[0]["height"] + ",";
-    filterComplex += "setsar=" + fileStreamsProperties[0]["sample_aspect_ratio"].replace(':', '/') + ",";
-    filterComplex += "setdar=" + fileStreamsProperties[0]["display_aspect_ratio"].replace(':', '/');
-    filterComplex += "[vout" + QString::number(i) + "];";
-  }
-
-  for (int i = 0; i < filesPaths.size(); ++i) {
-    filterComplex += "[vout" + QString::number(i) + "][" + QString::number(i) + ":a]";
-  }
-
-  filterComplex += "concat=n=" + QString::number(filesPaths.size()) + ":v=1:a=1[vout][aout]";
-
-  if (!this->areFilesStreamsEqual(filesPaths, "sample_aspect_ratio,display_aspect_ratio")) {
-    arguments << "-fps_mode"
-              << "vfr";
-  }
-
-  arguments << "-filter_complex" << filterComplex << "-map"
-            << "[vout]"
-            << "-map"
-            << "[aout]" << outputFilePath;
-
-  this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments, callback);
-}
-
 void FFmpegWrapper::mergeFilesWithDemuxer(const QStringList& filesPaths, const QString& outputFilePath,
                                           const bool& isQuickMerge, const std::function<void()>& callback) {
   QString demuxerListFileName = QUuid::createUuid().toString(QUuid::StringFormat::WithoutBraces);
@@ -192,6 +155,52 @@ void FFmpegWrapper::mergeFilesWithDemuxer(const QStringList& filesPaths, const Q
   this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments, callback);
 
   fileHelpers->deleteFile(demuxerListFileName);
+}
+
+void FFmpegWrapper::mergeFilesWithConcatFilter(const QStringList& filesPaths, const int& baseVideoIndex,
+                                               const QString& outputFilePath, const std::function<void()>& callback) {
+  QVector<QMap<QString, QString>> baseFileStreamsProperties =
+      this->getFileStreamsProperties(filesPaths[baseVideoIndex], FFmpegWrapper::MERGE_SENSITIVE_PROPERTIES);
+
+  QStringList arguments;
+
+  QString filterComplex = "";
+
+  for (int i = 0; i < filesPaths.size(); ++i) {
+    arguments << "-i" << filesPaths[i];
+    filterComplex += "[" + QString::number(i) + ":v]";
+    filterComplex += "scale=" + baseFileStreamsProperties[0]["width"] + ":" + baseFileStreamsProperties[0]["height"];
+
+    if (baseFileStreamsProperties[0]["sample_aspect_ratio"] != "N/A") {
+      filterComplex += ",setsar=" + baseFileStreamsProperties[0]["sample_aspect_ratio"].replace(':', '/');
+    }
+
+    if (baseFileStreamsProperties[0]["display_aspect_ratio"] != "N/A") {
+      filterComplex += ",setdar=" + baseFileStreamsProperties[0]["display_aspect_ratio"].replace(':', '/');
+    }
+
+    filterComplex += "[vout" + QString::number(i) + "];";
+  }
+
+  for (int i = 0; i < filesPaths.size(); ++i) {
+    filterComplex += "[vout" + QString::number(i) + "][" + QString::number(i) + ":a]";
+  }
+
+  filterComplex += "concat=n=" + QString::number(filesPaths.size()) + ":v=1:a=1[vout][aout]";
+
+  if (!this->areFilesStreamsEqual(filesPaths, "sample_aspect_ratio,display_aspect_ratio") ||
+      baseFileStreamsProperties[0]["sample_aspect_ratio"] == "N/A" ||
+      baseFileStreamsProperties[0]["display_aspect_ratio"] == "N/A") {
+    arguments << "-fps_mode"
+              << "vfr";
+  }
+
+  arguments << "-filter_complex" << filterComplex << "-map"
+            << "[vout]"
+            << "-map"
+            << "[aout]" << outputFilePath;
+
+  this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments, callback);
 }
 
 #ifdef Q_OS_MACOS

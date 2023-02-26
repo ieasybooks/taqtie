@@ -536,7 +536,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QLabel" name="sectionsToMergeLabel">
+           <widget class="QLabel" name="sectionsToMergeListLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -553,7 +553,7 @@
              <number>1</number>
             </property>
             <property name="text">
-             <string>الأجزاء التي تريد دمجها بعد التقطيع (إختياري)</string>
+             <string>الأجزاء التي تريد دمجها بعد التقطيع (اختياري)</string>
             </property>
            </widget>
           </item>
@@ -571,7 +571,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLabel" name="sectionsToMergeLabelHint">
+           <widget class="QLabel" name="sectionsToMergeListLabelHint">
             <property name="minimumSize">
              <size>
               <width>20</width>
@@ -597,7 +597,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QLineEdit" name="sectionsToMerge">
+         <widget class="QLineEdit" name="sectionsToMergeList">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -691,7 +691,7 @@
              <number>1</number>
             </property>
             <property name="text">
-             <string>مسار ملف البادئة (إختياري)</string>
+             <string>مسار ملف البادئة (اختياري)</string>
             </property>
            </widget>
           </item>
@@ -809,7 +809,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>مسار ملف الخاتمة (إختياري)</string>
+             <string>مسار ملف الخاتمة (اختياري)</string>
             </property>
            </widget>
           </item>
@@ -986,7 +986,7 @@
              <enum>Qt::RightToLeft</enum>
             </property>
             <property name="text">
-             <string>دمج سريع (من الممكن أن تفقد جودة الثواني التي تم عندها الدمج)</string>
+             <string>دمج سريع إن أمكن (من الممكن أن تفقد جودة الثواني التي تم عندها الدمج)</string>
             </property>
            </widget>
           </item>

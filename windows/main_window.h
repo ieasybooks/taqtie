@@ -7,6 +7,7 @@
 #include "helpers/file_helpers.h"
 #include "helpers/time_helpers.h"
 #include "readers/sections_reader.h"
+#include "validators/main_window_validator.h"
 #include "windows/about_window.h"
 #include "wrappers/ffmpeg_wrapper.h"
 
@@ -27,6 +28,13 @@ class MainWindow : public QMainWindow {
   static const int PROCESS_UPDATE_EVERY_MILLISECONDS;
   static const QStringList ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS;
 
+  static const QString SECTIONS_TO_MERGE_LABEL_HIND;
+  static const QString SELECT_INTRO_FILE_LABEL_HINT;
+  static const QString SELECT_OUTRO_FILE_LABEL_HINT;
+  static const QString START_TIME_LESS_THAN_END_TIME_ERROR;
+  static const QString PROCESS_FINISHED_SUCCESSFULLY_MESSAGE;
+  static const QString OUTPUT_FILE_EXISTS_ALREADY_ERROR;
+
   Ui::MainWindow *ui;
 
   AboutWindow *aboutWindow;
@@ -39,6 +47,7 @@ class MainWindow : public QMainWindow {
   FFmpegWrapper *ffmpegWrapper;
   FileHelpers *fileHelpers;
   SectionsReader *sectionsReader;
+  MainWindowValidator *validator;
   TimeHelpers *timeHelpers;
 
   void setupUi();
@@ -53,10 +62,15 @@ class MainWindow : public QMainWindow {
 
  private:
   void addSectionToTable(const SectionInfo &sectionInfo);
-  bool processSection(const int &sectionId);
   void resetProcessTimer();
   void updateProcessTimer();
   void toggleActionableElements();
-  bool areInputsValid();
+
+  bool cutSections();
+  bool mergeSections();
+  bool mergeIntroAndOutro();
+
+  QString getSectionOutputFilePath(const int &sectionIndex);
+  QString getSectionsToMergeOutputFilePath(const QString &sectionToMerge);
 };
 #endif  // MAINWINDOW_H

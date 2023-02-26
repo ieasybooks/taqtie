@@ -27,10 +27,10 @@ class FFmpegWrapper {
 
   void mergeFiles(const QStringList &filesPaths, const int &baseVideoIndex, const QString &outputFilePath,
                   const bool &isQuickMerge, const std::function<void()> &callback = nullptr);
-  void mergeFilesWithConcatFilter(const QStringList &filesPaths, const int &baseVideoIndex,
-                                  const QString &outputFilePath, const std::function<void()> &callback = nullptr);
   void mergeFilesWithDemuxer(const QStringList &filesPaths, const QString &outputFilePath, const bool &isQuickMerge,
                              const std::function<void()> &callback = nullptr);
+  void mergeFilesWithConcatFilter(const QStringList &filesPaths, const int &baseVideoIndex,
+                                  const QString &outputFilePath, const std::function<void()> &callback = nullptr);
 
  private:
   static const QStringList MERGE_SENSITIVE_PROPERTIES;

@@ -29,7 +29,7 @@ const QVector<SectionInfo> SectionsReader::fromExcel(const QString &filePath) {
     return sections;
   }
 
-  for (qint16 row = 1; true; ++row) {
+  for (int row = 1; true; ++row) {
     Cell *cell = nullptr;
     QString sectionTitle;
     QTime sectionStartTime;

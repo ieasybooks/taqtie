@@ -15,6 +15,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} "${CMAKE_SOURCE_DIR}/windows")
+
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core LinguistTools)
 
@@ -38,6 +40,9 @@ set(PROJECT_SOURCES
 
     readers/sections_reader.h
     readers/sections_reader.cpp
+
+    validators/main_window_validator.h
+    validators/main_window_validator.cpp
 
     windows/main_window.h
     windows/main_window.cpp
