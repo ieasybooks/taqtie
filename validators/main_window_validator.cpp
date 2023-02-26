@@ -16,12 +16,12 @@ bool MainWindowValidator::validateCuttingFilePath() {
   QMessageBox messageBox;
 
   if (ui->cuttingFilePath->text().trimmed().isEmpty()) {
-    messageBox.critical(nullptr, "خطأ", MainWindowValidator::EMPTY_CUTTING_FILE_ERROR);
+    messageBox.critical(nullptr, QObject::tr("error"), QObject::tr("empty_cutting_file_path_error"));
     return false;
   }
 
   if (!QFile::exists(ui->cuttingFilePath->text().trimmed())) {
-    messageBox.critical(nullptr, "خطأ", MainWindowValidator::NOT_EXISTING_CUTTING_FILE_ERROR);
+    messageBox.critical(nullptr, QObject::tr("error"), QObject::tr("not_existing_cutting_file_error"));
     return false;
   }
 
@@ -32,7 +32,7 @@ bool MainWindowValidator::validateSections() {
   QMessageBox messageBox;
 
   if (ui->sections->rowCount() == 0) {
-    messageBox.critical(nullptr, "خطأ", MainWindowValidator::NO_SECTIONS_ADDED_ERROR);
+    messageBox.critical(nullptr, QObject::tr("error"), QObject::tr("no_sections_added_error"));
     return false;
   }
 
@@ -48,14 +48,14 @@ bool MainWindowValidator::validateSectionsToMergeList() {
 
   for (const QString &sectionsToMerge : ui->sectionsToMergeList->text().trimmed().split(" ")) {
     if (!this->validateSectionsToMergeFormat(sectionsToMerge)) {
-      messageBox.critical(nullptr, "خطأ", MainWindowValidator::SECTIONS_TO_MERGE_ERROR);
+      messageBox.critical(nullptr, QObject::tr("error"), QObject::tr("sections_to_merge_error"));
       return false;
     }
 
     QStringList tokenizedSectionToMerge = this->tokenizeSectionsToMerge(sectionsToMerge);
 
     if (!this->validateTokenizedSectionsToMerge(tokenizedSectionToMerge)) {
-      messageBox.critical(nullptr, "خطأ", MainWindowValidator::SECTIONS_TO_MERGE_ERROR);
+      messageBox.critical(nullptr, QObject::tr("error"), QObject::tr("sections_to_merge_error"));
       return false;
     }
   }
@@ -67,12 +67,12 @@ bool MainWindowValidator::validateIntroAndOutroFilesPaths() {
   QMessageBox messageBox;
 
   if (!ui->introFilePath->text().trimmed().isEmpty() && !QFile::exists(ui->introFilePath->text().trimmed())) {
-    messageBox.critical(nullptr, "خطأ", MainWindowValidator::NOT_EXISTING_INTRO_FILE_ERROR);
+    messageBox.critical(nullptr, QObject::tr("error"), QObject::tr("not_existing_intro_file_path_error"));
     return false;
   }
 
   if (!ui->outroFilePath->text().trimmed().isEmpty() && !QFile::exists(ui->outroFilePath->text().trimmed())) {
-    messageBox.critical(nullptr, "خطأ", MainWindowValidator::NOT_EXISTING_OUTRO_FILE_ERROR);
+    messageBox.critical(nullptr, QObject::tr("error"), QObject::tr("not_existing_outro_file_path_error"));
     return false;
   }
 
@@ -132,10 +132,3 @@ bool MainWindowValidator::validateTokenizedSectionsToMerge(const QStringList &to
 
   return true;
 }
-
-const QString MainWindowValidator::EMPTY_CUTTING_FILE_ERROR = "يجب اختيار ملف قبل البدأ في العملية.";
-const QString MainWindowValidator::NOT_EXISTING_CUTTING_FILE_ERROR = "الملف المراد تقطيعه غير موجود.";
-const QString MainWindowValidator::NO_SECTIONS_ADDED_ERROR = "يجب إضافة جزء واحد على الأقل.";
-const QString MainWindowValidator::SECTIONS_TO_MERGE_ERROR = "يوجد خطأ في مدخلات الأجزاء المُراد دمجها بعد التقطيع.";
-const QString MainWindowValidator::NOT_EXISTING_INTRO_FILE_ERROR = "ملف البادئة غير موجود.";
-const QString MainWindowValidator::NOT_EXISTING_OUTRO_FILE_ERROR = "ملف الخاتمة غير موجود.";

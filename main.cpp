@@ -15,9 +15,14 @@ int main(int argc, char *argv[]) {
   QIcon icon(":/resources/taqtie.png");
   application.setWindowIcon(icon);
 
-  QTranslator translator;
-  if (translator.load(":/qt_ar.qm")) {
-    application.installTranslator(&translator);
+  QTranslator qtTranslator;
+  if (qtTranslator.load(":/qt_ar.qm")) {
+    application.installTranslator(&qtTranslator);
+  }
+
+  QTranslator customTranslator;
+  if (customTranslator.load(":/i18n/i18n_ar.qm")) {
+    application.installTranslator(&customTranslator);
   }
 
   MainWindow mainWindow;

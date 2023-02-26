@@ -15,13 +15,6 @@ class MainWindowValidator {
  private:
   Ui::MainWindow *ui;
 
-  static const QString EMPTY_CUTTING_FILE_ERROR;
-  static const QString NOT_EXISTING_CUTTING_FILE_ERROR;
-  static const QString NO_SECTIONS_ADDED_ERROR;
-  static const QString SECTIONS_TO_MERGE_ERROR;
-  static const QString NOT_EXISTING_INTRO_FILE_ERROR;
-  static const QString NOT_EXISTING_OUTRO_FILE_ERROR;
-
   bool validateCuttingFilePath();
   bool validateSections();
   bool validateSectionsToMergeList();

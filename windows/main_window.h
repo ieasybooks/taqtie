@@ -23,17 +23,9 @@ class MainWindow : public QMainWindow {
   ~MainWindow();
 
  private:
-  static const QString TEMPORARY_FILE_SUFFIX;
   static const QString PROCESS_TIMER_DEFAULT_VALUE;
   static const int PROCESS_UPDATE_EVERY_MILLISECONDS;
   static const QStringList ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS;
-
-  static const QString SECTIONS_TO_MERGE_LABEL_HIND;
-  static const QString SELECT_INTRO_FILE_LABEL_HINT;
-  static const QString SELECT_OUTRO_FILE_LABEL_HINT;
-  static const QString START_TIME_LESS_THAN_END_TIME_ERROR;
-  static const QString PROCESS_FINISHED_SUCCESSFULLY_MESSAGE;
-  static const QString OUTPUT_FILE_EXISTS_ALREADY_ERROR;
 
   Ui::MainWindow *ui;
 
@@ -74,6 +66,7 @@ class MainWindow : public QMainWindow {
   bool cutSections();
   bool mergeSections();
   bool mergeIntroAndOutro();
+  bool finalizeMergeIntroAndOutro(const QString &inputFilePath, const QString &outputFilePath);
 
   QString getSectionOutputFilePath(const int &sectionIndex);
   QString getSectionsToMergeOutputFilePath(const QString &sectionToMerge);

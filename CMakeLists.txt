@@ -17,8 +17,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} "${CMAKE_SOURCE_DIR}/windows")
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core LinguistTools)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Core LinguistTools REQUIRED)
 
 # For more information, see https://github.com/pedrolcl/qt-i18n
 include(TranslationUtils)
@@ -55,13 +55,6 @@ set(PROJECT_SOURCES
     wrappers/ffmpeg_wrapper.cpp
 )
 
-# set(TS_FILES
-#     i18n_ar.ts
-#     i18n_en.ts
-# )
-
-# qt_add_translation(QM_FILES ${TS_FILES})
-# add_app_translations_resource(APP_RES ${QM_FILES})
 add_qt_translations_resource(QT_RES ar)
 
 if (WIN32)
@@ -76,7 +69,6 @@ endif()
 qt_add_executable(taqtie
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
-#    ${APP_RES}
     ${QT_RES}
     ${app_icon}
 )
@@ -93,6 +85,9 @@ set_target_properties(taqtie PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+qt_add_translations(taqtie
+    TS_FILES i18n_ar.ts)
 
 set(taqtie_resource_files
     "resources/taqtie.png"

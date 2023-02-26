@@ -8,6 +8,10 @@
 #include "enums/section_columns.h"
 #include "ui_main_window.h"
 
+const QString MainWindow::PROCESS_TIMER_DEFAULT_VALUE = "00:00:00.000";
+const int MainWindow::PROCESS_UPDATE_EVERY_MILLISECONDS = 100;
+const QStringList MainWindow::ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS = {"Microsoft Excel (*.xlsx)"};
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
@@ -16,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
 
       mainMenuBar(new QMenuBar),
       mainMenu(new QMenu),
-      aboutAction(new QAction("عن تقطيع")),
+      aboutAction(new QAction(tr("about_taqtie"))),
 
       currentSection(0),
       totalProcessingSteps(0),
@@ -52,9 +56,9 @@ void MainWindow::setupUi() {
 
   ui->sections->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
-  ui->sectionsToMergeListLabelHint->setToolTip(MainWindow::SECTIONS_TO_MERGE_LABEL_HIND);
-  ui->selectIntroFileLabelHint->setToolTip(MainWindow::SELECT_INTRO_FILE_LABEL_HINT);
-  ui->selectOutroFileLabelHint->setToolTip(MainWindow::SELECT_OUTRO_FILE_LABEL_HINT);
+  ui->sectionsToMergeListLabelHint->setToolTip(tr("sections_to_merge_label_hint"));
+  ui->selectIntroFileLabelHint->setToolTip(tr("select_intro_file_label_hint"));
+  ui->selectOutroFileLabelHint->setToolTip(tr("select_outro_file_label_hint"));
 
   connect(ui->addSection, &QPushButton::clicked, this, &MainWindow::addSection);
   connect(ui->sections, &QTableWidget::itemDoubleClicked, this, &MainWindow::removeSection);
@@ -96,7 +100,7 @@ void MainWindow::addSection() {
 
   if (sectionStartTime >= sectionEndTime) {
     QMessageBox messageBox;
-    messageBox.critical(this, "خطأ", MainWindow::START_TIME_LESS_THAN_END_TIME_ERROR);
+    messageBox.critical(this, QObject::tr("error"), tr("start_time_less_than_end_time_error"));
     return;
   }
 
@@ -197,26 +201,35 @@ void MainWindow::processSections() {
   ui->processTimer->setText(MainWindow::PROCESS_TIMER_DEFAULT_VALUE);
   ui->processProgress->setValue(0);
 
-  if (!this->cutSections()) {
-    return;
+  bool errorHappened = false;
+
+  if (!errorHappened) {
+    errorHappened = !this->cutSections();
   }
 
-  if (!this->mergeSections()) {
-    return;
+  if (!errorHappened) {
+    errorHappened = !this->mergeSections();
   }
 
-  if (!this->mergeIntroAndOutro()) {
-    return;
+  if (!errorHappened) {
+    errorHappened = !this->mergeIntroAndOutro();
   }
 
-  QMessageBox messageBox;
-  messageBox.information(this, "إنتهينا!", MainWindow::PROCESS_FINISHED_SUCCESSFULLY_MESSAGE);
+  if (!errorHappened) {
+    QMessageBox messageBox;
+    messageBox.information(this, tr("process_finished_successfully_title"),
+                           tr("process_finished_successfully_message"));
+  }
 
   this->toggleActionableElements();
 }
 
 void MainWindow::calculateTotalProcessingSteps() {
-  this->totalProcessingSteps = ui->sections->rowCount() + ui->sectionsToMergeList->text().split(" ").size();
+  this->totalProcessingSteps = ui->sections->rowCount();
+
+  if (!ui->sectionsToMergeList->text().trimmed().isEmpty()) {
+    this->totalProcessingSteps += ui->sectionsToMergeList->text().split(" ").size();
+  }
 
   if (!ui->introFilePath->text().trimmed().isEmpty() || !ui->outroFilePath->text().trimmed().isEmpty()) {
     this->totalProcessingSteps *= 2;
@@ -229,7 +242,8 @@ bool MainWindow::cutSections() {
 
     if (QFile::exists(sectionOutputFilePath)) {
       QMessageBox messageBox;
-      messageBox.critical(this, "خطأ", MainWindow::OUTPUT_FILE_EXISTS_ALREADY_ERROR.arg(sectionOutputFilePath));
+      messageBox.critical(this, QObject::tr("error"),
+                          tr("output_file_exists_already_error").arg(sectionOutputFilePath));
       return false;
     }
 
@@ -270,7 +284,8 @@ bool MainWindow::mergeSections() {
 
     if (QFile::exists(sectionsToMergeOutputFilePath)) {
       QMessageBox messageBox;
-      messageBox.critical(this, "خطأ", MainWindow::OUTPUT_FILE_EXISTS_ALREADY_ERROR.arg(sectionsToMergeOutputFilePath));
+      messageBox.critical(this, QObject::tr("error"),
+                          tr("output_file_exists_already_error").arg(sectionsToMergeOutputFilePath));
       return false;
     }
 
@@ -288,39 +303,13 @@ bool MainWindow::mergeIntroAndOutro() {
     return true;
   }
 
-  QString introFilePath = ui->introFilePath->text();
-  QString outroFilePath = ui->outroFilePath->text();
-
   for (int sectionIndex = 0; sectionIndex < ui->sections->rowCount(); ++sectionIndex) {
     QString sectionOutputFilePath = this->getSectionOutputFilePath(sectionIndex);
-    QString finalSectionOutputFilePath =
-        this->getSectionOutputFilePath(sectionIndex).replace(MainWindow::TEMPORARY_FILE_SUFFIX, "");
+    QString finalSectionOutputFilePath = this->getSectionOutputFilePath(sectionIndex).replace(tr("-temporary"), "");
 
-    if (QFile::exists(finalSectionOutputFilePath)) {
-      QMessageBox messageBox;
-      messageBox.critical(this, "خطأ", MainWindow::OUTPUT_FILE_EXISTS_ALREADY_ERROR.arg(finalSectionOutputFilePath));
+    if (!this->finalizeMergeIntroAndOutro(sectionOutputFilePath, finalSectionOutputFilePath)) {
       return false;
     }
-
-    QStringList filesToMerge;
-    int baseVideoIndex = 0;
-
-    if (!introFilePath.isEmpty()) {
-      filesToMerge.append(introFilePath);
-      baseVideoIndex = 1;
-    }
-
-    filesToMerge.append(sectionOutputFilePath);
-
-    if (!outroFilePath.isEmpty()) {
-      filesToMerge.append(outroFilePath);
-    }
-
-    ffmpegWrapper->mergeFiles(filesToMerge, baseVideoIndex, finalSectionOutputFilePath, ui->quickMerge->isChecked(),
-                              std::bind(&MainWindow::updateProcessTimer, this));
-    fileHelpers->deleteFile(sectionOutputFilePath);
-
-    this->updateProcessProgress();
   }
 
   for (const QString &sectionsToMerge : ui->sectionsToMergeList->text().split(" ")) {
@@ -330,35 +319,45 @@ bool MainWindow::mergeIntroAndOutro() {
 
     QString sectionsToMergeOutputFilePath = this->getSectionsToMergeOutputFilePath(sectionsToMerge);
     QString finalSectionsToMergeOutputFilePath =
-        this->getSectionsToMergeOutputFilePath(sectionsToMerge).replace(MainWindow::TEMPORARY_FILE_SUFFIX, "");
+        this->getSectionsToMergeOutputFilePath(sectionsToMerge).replace(tr("-temporary"), "");
 
-    if (QFile::exists(finalSectionsToMergeOutputFilePath)) {
-      QMessageBox messageBox;
-      messageBox.critical(this, "خطأ",
-                          MainWindow::OUTPUT_FILE_EXISTS_ALREADY_ERROR.arg(finalSectionsToMergeOutputFilePath));
+    if (!this->finalizeMergeIntroAndOutro(sectionsToMergeOutputFilePath, finalSectionsToMergeOutputFilePath)) {
       return false;
     }
-
-    QStringList filesToMerge;
-    int baseVideoIndex = 0;
-
-    if (!introFilePath.isEmpty()) {
-      filesToMerge.append(introFilePath);
-      baseVideoIndex = 1;
-    }
-
-    filesToMerge.append(sectionsToMergeOutputFilePath);
-
-    if (!outroFilePath.isEmpty()) {
-      filesToMerge.append(outroFilePath);
-    }
-
-    ffmpegWrapper->mergeFiles(filesToMerge, baseVideoIndex, finalSectionsToMergeOutputFilePath,
-                              ui->quickMerge->isChecked(), std::bind(&MainWindow::updateProcessTimer, this));
-    fileHelpers->deleteFile(sectionsToMergeOutputFilePath);
-
-    this->updateProcessProgress();
   }
+
+  return true;
+}
+
+bool MainWindow::finalizeMergeIntroAndOutro(const QString &inputFilePath, const QString &outputFilePath) {
+  if (QFile::exists(outputFilePath)) {
+    QMessageBox messageBox;
+    messageBox.critical(this, QObject::tr("error"), tr("output_file_exists_already_error").arg(outputFilePath));
+    return false;
+  }
+
+  QString introFilePath = ui->introFilePath->text();
+  QString outroFilePath = ui->outroFilePath->text();
+
+  QStringList filesToMerge;
+  int baseVideoIndex = 0;
+
+  if (!introFilePath.isEmpty()) {
+    filesToMerge.append(introFilePath);
+    baseVideoIndex = 1;
+  }
+
+  filesToMerge.append(inputFilePath);
+
+  if (!outroFilePath.isEmpty()) {
+    filesToMerge.append(outroFilePath);
+  }
+
+  ffmpegWrapper->mergeFiles(filesToMerge, baseVideoIndex, outputFilePath, ui->quickMerge->isChecked(),
+                            std::bind(&MainWindow::updateProcessTimer, this));
+  fileHelpers->deleteFile(inputFilePath);
+
+  this->updateProcessProgress();
 
   return true;
 }
@@ -371,7 +370,7 @@ QString MainWindow::getSectionOutputFilePath(const int &sectionIndex) {
   if (ui->introFilePath->text().trimmed().isEmpty() && ui->outroFilePath->text().trimmed().isEmpty()) {
     return cuttingFilePathInfo.absoluteDir().filePath(sectionTitle + "." + cuttingFilePathInfo.suffix());
   } else {
-    return cuttingFilePathInfo.absoluteDir().filePath(sectionTitle + MainWindow::TEMPORARY_FILE_SUFFIX + "." +
+    return cuttingFilePathInfo.absoluteDir().filePath(sectionTitle + tr("-temporary") + "." +
                                                       cuttingFilePathInfo.suffix());
   }
 }
@@ -382,22 +381,7 @@ QString MainWindow::getSectionsToMergeOutputFilePath(const QString &sectionToMer
   if (ui->introFilePath->text().trimmed().isEmpty() && ui->outroFilePath->text().trimmed().isEmpty()) {
     return cuttingFilePathInfo.absoluteDir().filePath(sectionToMerge + "." + cuttingFilePathInfo.suffix());
   } else {
-    return cuttingFilePathInfo.absoluteDir().filePath(sectionToMerge + MainWindow::TEMPORARY_FILE_SUFFIX + "." +
+    return cuttingFilePathInfo.absoluteDir().filePath(sectionToMerge + tr("-temporary") + "." +
                                                       cuttingFilePathInfo.suffix());
   }
 }
-
-const QString MainWindow::TEMPORARY_FILE_SUFFIX = "-مؤقت";
-const QString MainWindow::PROCESS_TIMER_DEFAULT_VALUE = "00:00:00.000";
-const int MainWindow::PROCESS_UPDATE_EVERY_MILLISECONDS = 100;
-const QStringList MainWindow::ALLOWED_IMPORT_SECTIONS_FILE_EXTENSIONS = {"Microsoft Excel (*.xlsx)"};
-
-const QString MainWindow::SECTIONS_TO_MERGE_LABEL_HIND = "سيتم دمج هذه الأجزاء مع الإبقاء على الأجزاء المقطعة";
-const QString MainWindow::SELECT_INTRO_FILE_LABEL_HINT = "سيتم دمج هذا الملف في بداية كل جزء من الأجزاء";
-const QString MainWindow::SELECT_OUTRO_FILE_LABEL_HINT = "سيتم دمج هذا الملف في نهاية كل جزء من الأجزاء";
-const QString MainWindow::START_TIME_LESS_THAN_END_TIME_ERROR = "وقت البداية يجب أن يكون أقل من وقت النهاية.";
-const QString MainWindow::PROCESS_FINISHED_SUCCESSFULLY_MESSAGE =
-    "تم الإنتهاء من العملية التي بدأتها! ستجد المخرجات في مجلد الملف الأصلي.";
-const QString MainWindow::OUTPUT_FILE_EXISTS_ALREADY_ERROR =
-    "يوجد ملف باسم %1 مسبقًا، يُرجى اختيار اسم آخر.\nسيتم إيقاف العملية عند هذا الملف، يُرجى متابعة العملية بعد حل المش"
-    "كلة.";
