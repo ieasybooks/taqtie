@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
       aboutAction(new QAction("عن تقطيع")),
 
       currentSection(0),
+      totalProcessingSteps(0),
+      finishedProcessingSteps(0),
 
       ffmpegWrapper(new FFmpegWrapper),
       fileHelpers(new FileHelpers),
@@ -156,16 +158,21 @@ void MainWindow::addSectionToTable(const SectionInfo &sectionInfo) {
                             sectionInfo.getStartTime().secsTo(sectionInfo.getEndTime()))));
 }
 
-void MainWindow::resetProcessTimer() { ui->processTimer->setText(MainWindow::PROCESS_TIMER_DEFAULT_VALUE); }
+void MainWindow::updateProcessProgress() {
+  ui->processProgress->setValue(1.0 * ++finishedProcessingSteps / this->totalProcessingSteps * 100);
+}
 
 void MainWindow::updateProcessTimer() {
   QString currentTime = ui->processTimer->text();
+
   ui->processTimer->setText(
       timeHelpers->addMillisecondsToTime(currentTime, MainWindow::PROCESS_UPDATE_EVERY_MILLISECONDS));
 }
 
 void MainWindow::toggleActionableElements() {
+  ui->sections->setEnabled(!ui->sections->isEnabled());
   ui->sectionsToMergeList->setEnabled(!ui->sectionsToMergeList->isEnabled());
+
   QList<QPushButton *> buttons = ui->centralwidget->findChildren<QPushButton *>();
   QList<QCheckBox *> checkBoxes = ui->centralwidget->findChildren<QCheckBox *>();
 
@@ -184,7 +191,10 @@ void MainWindow::processSections() {
   }
 
   this->toggleActionableElements();
-  this->resetProcessTimer();
+
+  this->finishedProcessingSteps = 0;
+  this->calculateTotalProcessingSteps();
+  ui->processTimer->setText(MainWindow::PROCESS_TIMER_DEFAULT_VALUE);
   ui->processProgress->setValue(0);
 
   if (!this->cutSections()) {
@@ -205,6 +215,14 @@ void MainWindow::processSections() {
   this->toggleActionableElements();
 }
 
+void MainWindow::calculateTotalProcessingSteps() {
+  this->totalProcessingSteps = ui->sections->rowCount() + ui->sectionsToMergeList->text().split(" ").size();
+
+  if (!ui->introFilePath->text().trimmed().isEmpty() || !ui->outroFilePath->text().trimmed().isEmpty()) {
+    this->totalProcessingSteps *= 2;
+  }
+}
+
 bool MainWindow::cutSections() {
   for (int sectionIndex = 0; sectionIndex < ui->sections->rowCount(); ++sectionIndex) {
     QString sectionOutputFilePath = this->getSectionOutputFilePath(sectionIndex);
@@ -220,6 +238,8 @@ bool MainWindow::cutSections() {
 
     ffmpegWrapper->cutFile(ui->cuttingFilePath->text(), sectionStartTime, sectionEndTime, sectionOutputFilePath,
                            ui->quickCut->isChecked(), std::bind(&MainWindow::updateProcessTimer, this));
+
+    this->updateProcessProgress();
   }
 
   return true;
@@ -256,6 +276,8 @@ bool MainWindow::mergeSections() {
 
     ffmpegWrapper->mergeFiles(filesPaths, 0, sectionsToMergeOutputFilePath, ui->quickMerge->isChecked(),
                               std::bind(&MainWindow::updateProcessTimer, this));
+
+    this->updateProcessProgress();
   }
 
   return true;
@@ -297,6 +319,8 @@ bool MainWindow::mergeIntroAndOutro() {
     ffmpegWrapper->mergeFiles(filesToMerge, baseVideoIndex, finalSectionOutputFilePath, ui->quickMerge->isChecked(),
                               std::bind(&MainWindow::updateProcessTimer, this));
     fileHelpers->deleteFile(sectionOutputFilePath);
+
+    this->updateProcessProgress();
   }
 
   for (const QString &sectionsToMerge : ui->sectionsToMergeList->text().split(" ")) {
@@ -332,6 +356,8 @@ bool MainWindow::mergeIntroAndOutro() {
     ffmpegWrapper->mergeFiles(filesToMerge, baseVideoIndex, finalSectionsToMergeOutputFilePath,
                               ui->quickMerge->isChecked(), std::bind(&MainWindow::updateProcessTimer, this));
     fileHelpers->deleteFile(sectionsToMergeOutputFilePath);
+
+    this->updateProcessProgress();
   }
 
   return true;

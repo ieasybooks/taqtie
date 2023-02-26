@@ -1004,7 +1004,7 @@
            <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
-           <string>بدأ العملية</string>
+           <string>قطّع</string>
           </property>
           <property name="flat">
            <bool>false</bool>

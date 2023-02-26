@@ -44,6 +44,9 @@ class MainWindow : public QMainWindow {
   QAction *aboutAction;
 
   int currentSection;
+  int totalProcessingSteps;
+  int finishedProcessingSteps;
+
   FFmpegWrapper *ffmpegWrapper;
   FileHelpers *fileHelpers;
   SectionsReader *sectionsReader;
@@ -58,14 +61,16 @@ class MainWindow : public QMainWindow {
   void removeSection(QTableWidgetItem *item);
   void importSections();
   void clearSections();
+
   void processSections();
 
  private:
   void addSectionToTable(const SectionInfo &sectionInfo);
-  void resetProcessTimer();
+  void updateProcessProgress();
   void updateProcessTimer();
   void toggleActionableElements();
 
+  void calculateTotalProcessingSteps();
   bool cutSections();
   bool mergeSections();
   bool mergeIntroAndOutro();
