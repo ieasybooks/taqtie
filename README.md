@@ -1,4 +1,4 @@
-![الشاشة الرئيسية](taqtie_screenshot.png)
+![الشاشة الرئيسية](screenshot.png)
 
 
 # تقطيع
