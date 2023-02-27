@@ -117,3 +117,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(QXlsx)
 target_link_libraries(taqtie PRIVATE QXlsx::QXlsx)
+
+# Important commands to build the application bundle on Mac OS
+# install_name_tool -delete_rpath /Users/aliosm/Qt/6.4.0/macos/lib taqtie.app/Contents/MacOS/taqtie
+# install_name_tool -add_rpath @executable_path/../Frameworks taqtie.app/Contents/MacOS/taqtie
