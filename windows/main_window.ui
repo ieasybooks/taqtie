@@ -190,7 +190,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>اسم الجزء (إختياري)</string>
+               <string>اسم الجزء (اختياري)</string>
               </property>
              </widget>
             </item>
