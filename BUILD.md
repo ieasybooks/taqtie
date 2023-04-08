@@ -1,6 +1,12 @@
-# بناء تقطيع على نظام تشغيل MacOS
-
 ملاحظة: هذه الأوامر تعمل على حاسبي الشخصي، لاستخدامها على أي حاسب آخر يجب تغيير مسارات الملفات حسب الحاجة
+
+# بناء تقطيع على نظام تشغيل Windows
+
+```
+C:\Qt\6.4.2\mingw_64\bin\windeployqt.exe .\تقطيع.exe
+```
+
+# بناء تقطيع على نظام تشغيل MacOS
 
 ```
 install_name_tool -delete_rpath /Users/aliosm/Qt/6.4.0/macos/lib تقطيع.app/Contents/MacOS/تقطيع
