@@ -1,10 +1,10 @@
 #include "wrappers/ffmpeg_wrapper.h"
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
-#include <QUuid>
 
 /*
  * The source of this properties list came from:
@@ -134,16 +134,17 @@ void FFmpegWrapper::mergeFiles(const QStringList& filesPaths, const int& baseVid
 
 void FFmpegWrapper::mergeFilesWithDemuxer(const QStringList& filesPaths, const QString& outputFilePath,
                                           const bool& isQuickMerge, const std::function<void()>& callback) {
-  QString demuxerListFileName = QUuid::createUuid().toString(QUuid::StringFormat::WithoutBraces);
+  QFileInfo outputFilePathInfo = QFileInfo(outputFilePath);
+  QString demuxerListFilePath = outputFilePathInfo.absoluteDir().filePath("demuxerList.txt");
 
   QStringList lines;
   for (int i = 0; i < filesPaths.size(); ++i) {
     lines.append("file '" + filesPaths[i] + "'");
   }
 
-  fileHelpers->writeLinesToFile(demuxerListFileName, lines);
+  fileHelpers->writeLinesToFile(demuxerListFilePath, lines);
 
-  QStringList arguments{"-f", "concat", "-safe", "0", "-i", demuxerListFileName};
+  QStringList arguments{"-f", "concat", "-safe", "0", "-i", demuxerListFilePath};
 
   if (isQuickMerge) {
     arguments << "-c"
@@ -154,7 +155,7 @@ void FFmpegWrapper::mergeFilesWithDemuxer(const QStringList& filesPaths, const Q
 
   this->processHelpers->doBlockingProcess(this->ffmpegExecutablePath, arguments, callback);
 
-  fileHelpers->deleteFile(demuxerListFileName);
+  fileHelpers->deleteFile(demuxerListFilePath);
 }
 
 void FFmpegWrapper::mergeFilesWithConcatFilter(const QStringList& filesPaths, const int& baseVideoIndex,
